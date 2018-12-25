@@ -1,0 +1,22 @@
+{
+  "files.associations": {
+    "hashtable": "cpp",
+    "type_traits": "cpp",
+    "unordered_map": "cpp",
+    "utility": "cpp",
+    "__config": "cpp",
+    "__nullptr": "cpp",
+    "cstddef": "cpp",
+    "exception": "cpp",
+    "initializer_list": "cpp",
+    "new": "cpp",
+    "stdexcept": "cpp",
+    "typeinfo": "cpp",
+    "algorithm": "cpp",
+    "vector": "cpp",
+    "ostream": "cpp",
+    "iostream": "cpp",
+    "random": "cpp",
+    "memory_resource": "cpp"
+  }
+}

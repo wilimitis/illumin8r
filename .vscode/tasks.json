@@ -1,0 +1,27 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "compile",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "-o", "build/illumin8r",
+        "-std=c++17",
+        "-g", "-v",
+        "-framework", "GLUT",
+        "-framework", "OpenGL",
+        "-I", "libs",
+        "src/render.cpp",
+        "src/window.cpp",
+        "main.cpp"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
