@@ -1,7 +1,10 @@
+#pragma once
+
 #include "ray.h"
 
 class Object
 {
   public:
-    bool intersects(Ray ray);
+    virtual ~Object() {}
+    virtual bool intersects(Ray ray) = 0;
 };

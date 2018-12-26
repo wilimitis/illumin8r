@@ -1,7 +1,12 @@
+#pragma once
+
 #include <glm/glm.hpp>
 
 class Ray
 {
-  glm::vec3 direction;
-  glm::vec3 position;
+  public:
+    glm::vec3 direction;
+    glm::vec3 position;
+
+    Ray(glm::vec3 direction, glm::vec3 position): direction(direction), position(position) {}
 };

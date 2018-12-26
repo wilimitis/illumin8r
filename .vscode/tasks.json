@@ -14,8 +14,7 @@
         "-framework", "GLUT",
         "-framework", "OpenGL",
         "-I", "libs",
-        "src/render.cpp",
-        "src/window.cpp",
+        "src/*.cpp",
         "main.cpp"
       ],
       "group": {

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "image.h"
 
-void Show(Image image);
+void Show();

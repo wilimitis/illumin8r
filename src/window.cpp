@@ -8,9 +8,12 @@
 # else
 #  include <GL/glut.h>
 # endif
+#include "image.h"
 #include "window.h"
 
 #define ESC 27
+
+extern Image image;
 
 void glutKeyboard(unsigned char key, int x, int y)
 {
@@ -23,27 +26,28 @@ void glutKeyboard(unsigned char key, int x, int y)
 
 void glutDisplay()
 {
-	// glDrawPixels(
-  //   renderImage.GetWidth(),
-  //   renderImage.GetHeight(),
-  //   GL_RGB,
-  //   GL_UNSIGNED_BYTE,
-  //   renderImage.GetPixels()
-  // );
+	glDrawPixels(
+    image.width,
+    image.height,
+    GL_RGB,
+    GL_UNSIGNED_BYTE,
+    image.pixels
+  );
+	glutSwapBuffers();
 }
 
-void Show(Image image)
+void Show()
 {
 	int argc = 1;
 	char argstr[] = "raytrace";
 	char *argv = argstr;
 	glutInit(&argc,&argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH );
-	// if (glutGet(GLUT_SCREEN_WIDTH) > 0 && glutGet(GLUT_SCREEN_HEIGHT) > 0){
-	// 	glutInitWindowPosition( (glutGet(GLUT_SCREEN_WIDTH) - camera.imgWidth)/2, (glutGet(GLUT_SCREEN_HEIGHT) - camera.imgHeight)/2 );
-	// }
-	// else glutInitWindowPosition( 50, 50 );
-	// glutInitWindowSize(camera.imgWidth, camera.imgHeight);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowPosition(
+		(glutGet(GLUT_SCREEN_WIDTH) - image.width) / 2,
+		(glutGet(GLUT_SCREEN_HEIGHT) - image.height) /2
+	);
+	glutInitWindowSize(image.width, image.height);
 	glutCreateWindow("illumin8r");
   glutKeyboardFunc(glutKeyboard);
 	glutDisplayFunc(glutDisplay);
