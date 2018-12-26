@@ -40,7 +40,7 @@ void Show()
 {
 	int argc = 1;
 	char argstr[] = "raytrace";
-	char *argv = argstr;
+	char* argv = argstr;
 	glutInit(&argc,&argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowPosition(

@@ -17,7 +17,7 @@ class Image
   public:
     int height;
     int width;
-    Color *pixels;
+    Color* pixels;
 
     void init();
     void setPixel(int x, int y, glm::vec3 color);

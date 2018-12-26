@@ -1,0 +1,29 @@
+{
+  "camera": {
+    "direction": {
+      "x": 0,
+      "y": 0,
+      "z": -1
+    },
+    "fieldOfView": 30,
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": 10
+    },
+    "up": {
+      "x": 0,
+      "y": 1,
+      "z": 0
+    }
+  },
+  "image": {
+    "height": 400,
+    "width": 400
+  },
+  "objects": [
+    {
+      "type": "sphere"
+    }
+  ]
+}

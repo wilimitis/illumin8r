@@ -1,5 +1,9 @@
+#include <json/json.hpp>
+using json = nlohmann::json;
 #include <glm/glm.hpp>
+#include <fstream>
 #include <iostream>
+#include <string>
 #include <vector>
 #include "src/camera.h"
 #include "src/image.h"
@@ -11,21 +15,47 @@ Camera camera;
 Image image;
 std::vector<Object*> objects; 
 
+glm::vec3 getVec3(json node)
+{
+  return glm::vec3(node["x"], node["y"], node["z"]);
+}
+
+void setupCamera(json node)
+{
+  camera.direction = getVec3(node["direction"]);
+  camera.fieldOfView = node["fieldOfView"];
+  camera.position = getVec3(node["position"]);
+  camera.up = getVec3(node["up"]);
+}
+
+void setupImage(json node)
+{
+  image.height = node["height"];
+  image.width = node["width"];
+  image.init();
+}
+
+void setupObjects(json node)
+{
+  for (auto& object : node) {
+    if (object["type"] == "sphere") {
+      Sphere* s = new Sphere();
+      objects.push_back(s);
+    }
+  }
+}
+
 void setup()
 {
-  // TODO: Read json.
+  std::ifstream i("scene.json");
+  nlohmann::json scene;
+  i >> scene;
+  i.close();
   
-  camera.direction = glm::vec3(0, 0, -1);
-  camera.fieldOfView = 30;
-  camera.position = glm::vec3(0, 0, 10);
-  camera.up = glm::vec3(0, 1, 0);
+  setupCamera(scene["camera"]);
+  setupImage(scene["image"]);
+  setupObjects(scene["objects"]);
 
-  image.height = 400;
-  image.width = 400;
-  image.init();
-  
-  Sphere *s = new Sphere();
-  objects.push_back(s);
   std::cout << "setup complete" << std::endl;
 }
 
