@@ -1,5 +1,8 @@
 #include "image.h"
 
+Image::Color::Color() {}
+Image::Color::Color(unsigned char r, unsigned char g, unsigned char b) : r(r), g(g), b(b) {}
+
 void Image::init()
 {
   pixels = new Color[height * width];
