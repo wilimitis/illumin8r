@@ -21,6 +21,16 @@
     "height": 400,
     "width": 400
   },
+  "lights": [
+    {
+      "type": "point",
+      "position": {
+        "x": 5,
+        "y": 5,
+        "z": 0
+      }
+    }
+  ],
   "objects": [
     {
       "type": "sphere"

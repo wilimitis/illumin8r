@@ -7,13 +7,15 @@ using json = nlohmann::json;
 #include <vector>
 #include "src/camera.h"
 #include "src/image.h"
+#include "src/light/pointLight.h"
 #include "src/render.h"
 #include "src/sphere.h"
 #include "src/window.h"
 
 Camera camera;
 Image image;
-std::vector<Object*> objects; 
+std::vector<Light*> lights;
+std::vector<Object*> objects;
 
 glm::vec3 getVec3(json node)
 {
@@ -35,6 +37,17 @@ void setupImage(json node)
   image.init();
 }
 
+void setupLights(json node)
+{
+  for (auto& light : node) {
+    if (light["type"] == "point") {
+      PointLight* l = new PointLight();
+      l->position = getVec3(light["position"]);
+      lights.push_back(l);
+    }
+  }
+}
+
 void setupObjects(json node)
 {
   for (auto& object : node) {
@@ -54,6 +67,7 @@ void setup()
   
   setupCamera(scene["camera"]);
   setupImage(scene["image"]);
+  setupLights(scene["lights"]);
   setupObjects(scene["objects"]);
 
   std::cout << "setup complete" << std::endl;
