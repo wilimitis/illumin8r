@@ -1,8 +1,8 @@
 #pragma once
 
 #include "glm/glm.hpp"
-#include "hit.h"
-#include "ray.h"
+#include "../hit.h"
+#include "../ray.h"
 
 class Object
 {

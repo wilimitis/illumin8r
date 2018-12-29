@@ -4,7 +4,7 @@
 #include "camera.h"
 #include "image.h"
 #include "light/light.h"
-#include "object.h"
+#include "object/object.h"
 
 void Render(
   Camera camera,

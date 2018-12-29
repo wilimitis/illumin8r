@@ -9,7 +9,7 @@ using json = nlohmann::json;
 #include "src/image.h"
 #include "src/light/pointLight.h"
 #include "src/render.h"
-#include "src/sphere.h"
+#include "src/object/sphere.h"
 #include "src/window.h"
 
 Camera camera;
