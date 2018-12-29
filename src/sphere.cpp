@@ -1,7 +1,7 @@
 #include <glm/glm.hpp>
 #include "sphere.h"
 
-bool Sphere::intersects(Ray ray)
+bool Sphere::intersects(const Ray &ray)
 {
   glm::vec3 o = glm::vec3(0);
 	float r = 1;
