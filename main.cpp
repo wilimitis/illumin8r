@@ -53,6 +53,10 @@ void setupObjects(json node)
   for (auto& object : node) {
     if (object["type"] == "sphere") {
       Sphere* s = new Sphere();
+      json rotate = object["rotate"];
+      s->rotate(rotate["angle"], getVec3(rotate["axis"]));
+      s->scale(getVec3(object["scale"]));
+      s->translate(getVec3(object["translate"]));
       objects.push_back(s);
     }
   }
