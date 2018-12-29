@@ -8,5 +8,6 @@ class Ray
     glm::vec3 direction;
     glm::vec3 position;
 
+    Ray();
     Ray(glm::vec3 direction, glm::vec3 position);
 };
