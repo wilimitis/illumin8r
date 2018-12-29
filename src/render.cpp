@@ -3,6 +3,7 @@
 #include <time.h>
 #include "ray.h"
 #include "render.h"
+#include "utils.h"
 
 #define WHITE 1
 #define BLACK 0
@@ -82,14 +83,6 @@ void renderHit(
   Hit hit = cast(ray, objects);
   glm::vec3 color = glm::vec3(hit.isEmpty ? BLACK : WHITE);
   image.setPixel(x, y, color);
-}
-
-// TODO: Move to utils.
-float map(float input, float inputStart, float inputEnd, float outputStart, float outputEnd)
-{
-  float inputRange = inputEnd - inputStart;
-  float outputRange = outputEnd - outputStart;
-  return (input - inputStart) * outputRange / inputRange + outputStart;
 }
 
 void renderNormal(
