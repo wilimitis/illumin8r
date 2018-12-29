@@ -34,6 +34,7 @@ void setupImage(json node)
 {
   image.height = node["height"];
   image.width = node["width"];
+  image.render = node["render"];
   image.init();
 }
 

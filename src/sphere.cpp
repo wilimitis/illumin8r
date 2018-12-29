@@ -1,8 +1,11 @@
+#include <algorithm>
 #include <glm/glm.hpp>
 #include "sphere.h"
 
-bool Sphere::intersects(const Ray &ray)
+Hit Sphere::intersects(const Ray &ray)
 {
+	Hit h;
+
   glm::vec3 o = glm::vec3(0);
 	float r = 1;
 	float b = glm::dot(ray.direction, ray.position);
@@ -10,7 +13,7 @@ bool Sphere::intersects(const Ray &ray)
 	float c = glm::dot(ray.position, ray.position) - r * r;
 	float d = b * b - a * c;
 	if (d < 0) {
-		return false;
+		return h;
 	}
 
 	d = sqrtf(d);
@@ -18,7 +21,16 @@ bool Sphere::intersects(const Ray &ray)
 	float t0 = (nddp - d) / a;
 	float t1 = (nddp + d) / a;
 	if (t0 < 0 && t1 < 0) {
-		return false;
+		return h;
 	}
-	return true;
+	
+	if (t0 == t1 || (t0 > 0 && t1 > 0)) {
+		h.distance = std::min(t0, t1);	
+	} else {
+		h.distance = std::max(t0, t1);
+	}
+	h.position = ray.position + h.distance * ray.direction;
+	h.normal = glm::normalize(h.position - o);
+	h.isEmpty = false;
+	return h;
 }

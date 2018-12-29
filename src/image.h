@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <glm/glm.hpp>
 
 class Image
@@ -17,6 +18,7 @@ class Image
     int height;
     int width;
     Color* pixels;
+    std::string render;
 
     void init();
     void setPixel(int x, int y, glm::vec3 color);

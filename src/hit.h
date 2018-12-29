@@ -6,7 +6,9 @@ class Hit
 {
   public:
     float distance;
+    bool isEmpty;
     glm::vec3 normal;
+    glm::vec3 position;
 
-    Hit(float distance, glm::vec3 normal);
+    Hit();
 };

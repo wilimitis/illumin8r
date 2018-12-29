@@ -49,14 +49,88 @@ Ray getRay(int x, int y, Camera camera, Image image)
   return Ray(rd, camera.position);
 }
 
-glm::vec3 getColor(int x, int y, Ray ray, std::vector<Object*> objects)
+Hit cast(const Ray &ray, std::vector<Object*> objects)
 {
+  Hit result;
   for (int i = 0; i < objects.size(); i++) {
-    if (objects.at(i)->intersects(ray)) {
-      return glm::vec3(WHITE);
+    Object* object = objects.at(i);
+    Ray localRay = object->getLocal(ray);
+    Hit hit = object->intersects(localRay);
+    if (hit.isEmpty) {
+      continue;
+    }
+
+    hit.distance = glm::length(hit.position - ray.position);
+    if (result.isEmpty || hit.distance < result.distance) {
+      Ray intersectionRay = object->getWorld(Ray(hit.normal, hit.position));
+      hit.normal = intersectionRay.direction;
+      hit.position = intersectionRay.position;
+      result = hit;
     }
   }
-  return glm::vec3(BLACK);
+  return result;
+}
+
+void renderHit(
+  int x,
+  int y,
+  Image &image,
+  const Ray &ray,
+  std::vector<Object*> objects
+)
+{
+  Hit hit = cast(ray, objects);
+  glm::vec3 color = glm::vec3(hit.isEmpty ? BLACK : WHITE);
+  image.setPixel(x, y, color);
+}
+
+// TODO: Move to utils.
+float map(float input, float inputStart, float inputEnd, float outputStart, float outputEnd)
+{
+  float inputRange = inputEnd - inputStart;
+  float outputRange = outputEnd - outputStart;
+  return (input - inputStart) * outputRange / inputRange + outputStart;
+}
+
+void renderNormal(
+  int x,
+  int y,
+  Image &image,
+  const Ray &ray,
+  std::vector<Object*> objects
+)
+{
+  Hit hit = cast(ray, objects);
+  glm::vec3 color;
+  if (hit.isEmpty) {
+    color = glm::vec3(BLACK);
+  } else {
+    // https://en.wikipedia.org/wiki/Normal_mapping
+    color = glm::vec3(
+      map(hit.normal.x, -1, 1, 0, 1),
+      map(hit.normal.y, -1, 1, 0, 1),
+      hit.normal.z
+    );
+  }
+  image.setPixel(x, y, color);
+}
+
+void renderPixel(
+  int x,
+  int y,
+  Image &image,
+  const Ray &ray,
+  std::vector<Object*> objects
+)
+{
+  // TODO: Extract Renderer class.
+  if (image.render == "depth") {
+    // TODO
+  } else if (image.render == "hit") {
+    renderHit(x, y, image, ray, objects);
+  } else if (image.render == "normal") {
+    renderNormal(x, y, image, ray, objects);
+  }
 }
 
 void render(
@@ -69,8 +143,7 @@ void render(
   for (int x = 0; x < image.width; x++) {
     for (int y = 0; y < image.height; y++) {
       Ray ray = getRay(x, y, camera, image);
-      glm::vec3 color = getColor(x, y, ray, objects);
-      image.setPixel(x, y, color);
+      renderPixel(x, y, image, ray, objects);
     }
   }
 }
