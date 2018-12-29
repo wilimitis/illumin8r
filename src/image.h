@@ -3,11 +3,9 @@
 #include <string>
 #include <glm/glm.hpp>
 
-class Image
-{
+class Image {
   private:
-    class Color
-    {
+    class Color {
       public:
         unsigned char r, g, b;
         Color();

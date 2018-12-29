@@ -2,8 +2,7 @@
 
 #include <glm/glm.hpp>
 
-class Camera
-{
+class Camera {
   public:
     glm::vec3 direction;
     float fieldOfView;

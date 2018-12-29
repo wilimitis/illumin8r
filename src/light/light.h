@@ -3,8 +3,7 @@
 #include <glm/glm.hpp>
 #include "../ray.h"
 
-class Light
-{
+class Light {
   public:
     glm::vec3 position;
     

@@ -2,14 +2,12 @@
 #include <glm/glm.hpp>
 #include "object.h"
 
-Object::Object()
-{
+Object::Object() {
   // Creates the identity matrix.
   localTransformation = glm::mat4(1);
 }
 
-Ray Object::getLocal(const Ray &ray)
-{
+Ray Object::getLocal(const Ray &ray) {
   glm::mat4 worldTransformation = glm::inverse(localTransformation);
 
   // Ignore the translation component for directions.
@@ -20,8 +18,7 @@ Ray Object::getLocal(const Ray &ray)
   return Ray(localDirection, localPosition);
 }
 
-Ray Object::getWorld(const Ray &ray)
-{
+Ray Object::getWorld(const Ray &ray) {
   // Ignore the translation component for directions.
   // Shirley 6.3
   glm::vec3 worldPosition = localTransformation * glm::vec4(ray.position, 1);
@@ -30,17 +27,14 @@ Ray Object::getWorld(const Ray &ray)
   return Ray(worldDirection, worldPosition);
 }
 
-void Object::rotate(float angle, const glm::vec3 &axis)
-{
+void Object::rotate(float angle, const glm::vec3 &axis) {
   localTransformation = glm::rotate(localTransformation, angle, axis);
 }
 
-void Object::scale(const glm::vec3 &scale)
-{
+void Object::scale(const glm::vec3 &scale) {
   localTransformation = glm::scale(localTransformation, scale);
 }
 
-void Object::translate(const glm::vec3 &translation)
-{
+void Object::translate(const glm::vec3 &translation) {
   localTransformation = glm::translate(localTransformation, translation);
 }

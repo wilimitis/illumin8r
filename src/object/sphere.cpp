@@ -2,8 +2,7 @@
 #include <glm/glm.hpp>
 #include "sphere.h"
 
-Hit Sphere::intersects(const Ray &ray)
-{
+Hit Sphere::intersects(const Ray &ray) {
 	Hit h;
 
   glm::vec3 o = glm::vec3(0);

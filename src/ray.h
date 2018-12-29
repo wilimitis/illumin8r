@@ -2,8 +2,7 @@
 
 #include <glm/glm.hpp>
 
-class Ray
-{
+class Ray {
   public:
     glm::vec3 direction;
     glm::vec3 position;

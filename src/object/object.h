@@ -4,8 +4,7 @@
 #include "../hit.h"
 #include "../ray.h"
 
-class Object
-{
+class Object {
   public:
     glm::mat4 localTransformation;
 

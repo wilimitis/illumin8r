@@ -8,8 +8,7 @@
 #define WHITE 1
 #define BLACK 0
 
-Ray getRay(int x, int y, Camera camera, Image image)
-{
+Ray getRay(int x, int y, Camera camera, Image image) {
   // Compute aspect ratio.
   // Shirley 7.5
   float arw = image.width > image.height
@@ -50,8 +49,7 @@ Ray getRay(int x, int y, Camera camera, Image image)
   return Ray(rd, camera.position);
 }
 
-Hit cast(const Ray &ray, std::vector<Object*> objects)
-{
+Hit cast(const Ray &ray, std::vector<Object*> objects) {
   Hit result;
   for (int i = 0; i < objects.size(); i++) {
     Object* object = objects.at(i);
@@ -78,8 +76,7 @@ void renderDepth(
   Image &image,
   const Ray &ray,
   std::vector<Object*> objects
-)
-{
+) {
   Hit hit = cast(ray, objects);
   image.setBuffer(x, y, hit.isEmpty ? -1 : hit.distance);
 }
@@ -90,8 +87,7 @@ void renderHit(
   Image &image,
   const Ray &ray,
   std::vector<Object*> objects
-)
-{
+) {
   Hit hit = cast(ray, objects);
   glm::vec3 color = glm::vec3(hit.isEmpty ? BLACK : WHITE);
   image.setPixel(x, y, color);
@@ -103,8 +99,7 @@ void renderNormal(
   Image &image,
   const Ray &ray,
   std::vector<Object*> objects
-)
-{
+) {
   Hit hit = cast(ray, objects);
   glm::vec3 color;
   if (hit.isEmpty) {
@@ -126,8 +121,7 @@ void renderPixel(
   Image &image,
   const Ray &ray,
   std::vector<Object*> objects
-)
-{
+) {
   // TODO: Extract Renderer class.
   if (image.render == "depth") {
     renderDepth(x, y, image, ray, objects);
@@ -138,8 +132,7 @@ void renderPixel(
   }
 }
 
-void postRender(Image image)
-{
+void postRender(Image image) {
   // TODO: Extract Renderer class.
   if (image.render == "depth") {
     int size = image.height * image.width;
@@ -172,8 +165,7 @@ void render(
   Image image,
   std::vector<Light*> lights,
   std::vector<Object*> objects
-)
-{
+) {
   for (int x = 0; x < image.width; x++) {
     for (int y = 0; y < image.height; y++) {
       Ray ray = getRay(x, y, camera, image);
@@ -187,8 +179,7 @@ void Render(
   Image image,
   std::vector<Light*> lights,
   std::vector<Object*> objects
-)
-{
+) {
   int	startTime =  (int) time(NULL);
 
   render(camera, image, lights, objects);

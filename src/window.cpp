@@ -15,8 +15,7 @@
 
 extern Image image;
 
-void glutKeyboard(unsigned char key, int x, int y)
-{
+void glutKeyboard(unsigned char key, int x, int y) {
 	switch (ESC) {
     case 27:
       exit(0);
@@ -24,8 +23,7 @@ void glutKeyboard(unsigned char key, int x, int y)
   }
 }
 
-void glutDisplay()
-{
+void glutDisplay() {
 	glDrawPixels(
     image.width,
     image.height,
@@ -36,8 +34,7 @@ void glutDisplay()
 	glutSwapBuffers();
 }
 
-void Show()
-{
+void Show() {
 	int argc = 1;
 	char argstr[] = "raytrace";
 	char* argv = argstr;

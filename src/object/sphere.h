@@ -2,8 +2,7 @@
 
 #include "object.h"
 
-class Sphere : public Object
-{
+class Sphere : public Object {
   public:
     virtual Hit intersects(const Ray &ray);
 };

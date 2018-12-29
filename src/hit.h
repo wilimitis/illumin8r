@@ -2,8 +2,7 @@
 
 #include <glm/glm.hpp>
 
-class Hit
-{
+class Hit {
   public:
     float distance;
     bool isEmpty;

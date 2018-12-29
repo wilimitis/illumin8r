@@ -1,6 +1,5 @@
 #include "hit.h"
 
-Hit::Hit()
-{
+Hit::Hit() {
   isEmpty = true;
 }
