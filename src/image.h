@@ -17,9 +17,12 @@ class Image
   public:
     int height;
     int width;
+    float* buffer;
     Color* pixels;
     std::string render;
 
     void init();
+    void setBuffer(int x, int y, float value);
+    void setPixel(int index, glm::vec3 color);
     void setPixel(int x, int y, glm::vec3 color);
 };

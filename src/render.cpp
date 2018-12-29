@@ -61,15 +61,27 @@ Hit cast(const Ray &ray, std::vector<Object*> objects)
       continue;
     }
 
+    Ray intersectionRay = object->getWorld(Ray(hit.normal, hit.position));
+    hit.position = intersectionRay.position;
     hit.distance = glm::length(hit.position - ray.position);
     if (result.isEmpty || hit.distance < result.distance) {
-      Ray intersectionRay = object->getWorld(Ray(hit.normal, hit.position));
       hit.normal = intersectionRay.direction;
-      hit.position = intersectionRay.position;
       result = hit;
     }
   }
   return result;
+}
+
+void renderDepth(
+  int x,
+  int y,
+  Image &image,
+  const Ray &ray,
+  std::vector<Object*> objects
+)
+{
+  Hit hit = cast(ray, objects);
+  image.setBuffer(x, y, hit.isEmpty ? -1 : hit.distance);
 }
 
 void renderHit(
@@ -118,11 +130,40 @@ void renderPixel(
 {
   // TODO: Extract Renderer class.
   if (image.render == "depth") {
-    // TODO
+    renderDepth(x, y, image, ray, objects);
   } else if (image.render == "hit") {
     renderHit(x, y, image, ray, objects);
   } else if (image.render == "normal") {
     renderNormal(x, y, image, ray, objects);
+  }
+}
+
+void postRender(Image image)
+{
+  // TODO: Extract Renderer class.
+  if (image.render == "depth") {
+    int size = image.height * image.width;
+    float min = FLT_MAX;
+    float max = 0;
+    for (int i = 0; i < size; i++) {
+      if (image.buffer[i] == -1) {
+        continue;
+      }
+      if (min > image.buffer[i]) {
+        min = image.buffer[i];
+      }
+      if (max < image.buffer[i]) {
+        max = image.buffer[i];
+      }
+    }
+    for (int i = 0; i < size; i++) {
+      if (image.buffer[i] == -1) {
+        image.setPixel(i, glm::vec3(BLACK));
+      } else {
+        float depth = (max - image.buffer[i]) / (max - min);
+        image.setPixel(i, glm::vec3(depth));
+      }
+    }
   }
 }
 
@@ -151,6 +192,7 @@ void Render(
   int	startTime =  (int) time(NULL);
 
   render(camera, image, lights, objects);
+  postRender(image);
 
   int endTime = (int) time(NULL);
   int runTime = endTime - startTime;

@@ -20,7 +20,7 @@
   "image": {
     "height": 400,
     "width": 400,
-    "render": "normal"
+    "render": "depth"
   },
   "lights": [
     {
