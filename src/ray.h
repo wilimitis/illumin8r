@@ -9,5 +9,5 @@ class Ray
     glm::vec3 position;
 
     Ray();
-    Ray(glm::vec3 direction, glm::vec3 position);
+    Ray(const glm::vec3 &direction, const glm::vec3 &position);
 };

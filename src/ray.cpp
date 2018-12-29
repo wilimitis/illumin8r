@@ -2,4 +2,5 @@
 
 Ray::Ray() {}
 
-Ray::Ray(glm::vec3 direction, glm::vec3 position) : direction(direction), position(position) {}
+Ray::Ray(const glm::vec3 &direction, const glm::vec3 &position)
+  : direction(direction), position(position) {}
