@@ -77,7 +77,7 @@ int main()
 {
   std::cout << "illumin8r" << std::endl;
   setup();
-  Render(camera, image, objects);
+  Render(camera, image, lights, objects);
   Show();
   return 0;
 }

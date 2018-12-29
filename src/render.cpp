@@ -9,7 +9,7 @@
 
 Ray getRay(int x, int y, Camera camera, Image image)
 {
-  // Compute for aspect ratio.
+  // Compute aspect ratio.
   // Shirley 7.5
   float arw = image.width > image.height
     ? float(image.width) / image.height
@@ -62,6 +62,7 @@ glm::vec3 getColor(int x, int y, Ray ray, std::vector<Object*> objects)
 void render(
   Camera camera,
   Image image,
+  std::vector<Light*> lights,
   std::vector<Object*> objects
 )
 {
@@ -77,12 +78,13 @@ void render(
 void Render(
   Camera camera,
   Image image,
+  std::vector<Light*> lights,
   std::vector<Object*> objects
 )
 {
   int	startTime =  (int) time(NULL);
 
-  render(camera, image, objects);
+  render(camera, image, lights, objects);
 
   int endTime = (int) time(NULL);
   int runTime = endTime - startTime;
