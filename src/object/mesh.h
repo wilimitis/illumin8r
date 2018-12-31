@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tinyobjloader/tiny_obj_loader.h"
+#include "../accelerationStructure/accelerationStructure.h"
 #include "object.h"
 
 class Mesh : public Object {
@@ -10,15 +11,19 @@ class Mesh : public Object {
         static const bool cull = true;
         static const int vertexCount = 3;
         
-        glm::vec3 verticies[vertexCount];
+        glm::vec3 vertices[vertexCount];
         glm::vec3 normals[vertexCount];
 
+        Box computeBox();
         Hit intersects(const Ray &ray);
     };
 
+    AccelerationStructure* accelerationStructure;
     std::vector<Object*> objects;
 
   public:
-    void init(const char* file);
+    Box computeBox();
     Hit intersects(const Ray &ray);
+    
+    void init(const char* file, bool accelerated);
 };

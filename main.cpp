@@ -54,7 +54,7 @@ void setupObjects(json node) {
     } else if (object["type"] == "obj") {
       o = new Mesh();
       std::string file = object["file"];
-      ((Mesh*) o)->init(file.c_str());
+      ((Mesh*) o)->init(file.c_str(), object["accelerated"]);
     }
     json rotate = object["rotate"];
     o->translate(getVec3(object["translate"]));

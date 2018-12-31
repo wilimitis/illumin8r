@@ -1,15 +1,29 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <glm/glm.hpp>
 #include <iostream>
+#include "../accelerationStructure/bvh.h"
 #include "mesh.h"
+
+Box Mesh::Triangle::computeBox() {
+	Box b;
+	b.min = glm::vec3(
+		std::min({vertices[0].x, vertices[1].x, vertices[2].x}),
+		std::min({vertices[0].y, vertices[1].y, vertices[2].y}),
+		std::min({vertices[0].z, vertices[1].z, vertices[2].z}));
+	b.max = glm::vec3(
+		std::max({vertices[0].x, vertices[1].x, vertices[2].x}),
+		std::max({vertices[0].y, vertices[1].y, vertices[2].y}),
+		std::max({vertices[0].z, vertices[1].z, vertices[2].z}));
+	return b;
+}
 
 Hit Mesh::Triangle::intersects(const Ray &ray) {
   Hit h;
 
 	// http://www.graphics.cornell.edu/pubs/1997/MT97.pdf
 	float eta = 0.000001;
-	glm::vec3 e1 = verticies[1] - verticies[0];
-	glm::vec3 e2 = verticies[2] - verticies[0];
+	glm::vec3 e1 = vertices[1] - vertices[0];
+	glm::vec3 e2 = vertices[2] - vertices[0];
 
 	glm::vec3 p = glm::cross(ray.direction, e2);
 	float d = glm::dot(e1, p);
@@ -22,7 +36,7 @@ Hit Mesh::Triangle::intersects(const Ray &ray) {
 			return h;
 		}
 
-		glm::vec3 t = ray.position - verticies[0];
+		glm::vec3 t = ray.position - vertices[0];
 		u = glm::dot(t, p);
 		if (u < 0 || u > d) {
 			return h;
@@ -45,7 +59,7 @@ Hit Mesh::Triangle::intersects(const Ray &ray) {
 		}
 
 		float di = 1.0 / d;
-		glm::vec3 t = ray.position - verticies[0];
+		glm::vec3 t = ray.position - vertices[0];
 		u = glm::dot(t, p) * di;
 		if (u < 0 || u > 1) {
 			return h;
@@ -71,7 +85,16 @@ Hit Mesh::Triangle::intersects(const Ray &ray) {
 	return h;
 }
 
+Box Mesh::computeBox() {
+	Box b;
+	// TODO
+	return b;
+}
+
 Hit Mesh::intersects(const Ray &ray) {
+	if (accelerationStructure) {
+		return accelerationStructure->intersects(ray);
+	}
 	Hit result;
 	for (int i = 0; i < objects.size(); i++) {
 		Hit hit = objects.at(i)->intersects(ray);
@@ -82,7 +105,7 @@ Hit Mesh::intersects(const Ray &ray) {
 	return result;
 }
 
-void Mesh::init(const char* file) {
+void Mesh::init(const char* file, bool accelerated) {
 	tinyobj::attrib_t attrib;
   std::vector<tinyobj::material_t> materials;
   std::vector<tinyobj::shape_t> shapes;
@@ -101,7 +124,7 @@ void Mesh::init(const char* file) {
 			int vertexCount = Triangle::vertexCount;
 			for (int vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++) {
 				tinyobj::index_t index = shapes[shapeIndex].mesh.indices[vertexIndexOffset + vertexIndex];
-				triangle->verticies[vertexIndex] = glm::vec3(
+				triangle->vertices[vertexIndex] = glm::vec3(
 					attrib.vertices[vertexCount * index.vertex_index],
 					attrib.vertices[vertexCount * index.vertex_index + 1],
 					attrib.vertices[vertexCount * index.vertex_index + 2]);
@@ -113,5 +136,9 @@ void Mesh::init(const char* file) {
 			objects.push_back(triangle);
 			vertexIndexOffset += vertexCount;
 		}
+	}
+
+	if (accelerated) {
+		accelerationStructure = new BVH(objects);
 	}
 }

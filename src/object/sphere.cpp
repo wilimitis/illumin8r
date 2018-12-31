@@ -2,6 +2,13 @@
 #include <glm/glm.hpp>
 #include "sphere.h"
 
+Box Sphere::computeBox() {
+	Box b;
+	b.min = glm::vec3(-1);
+	b.max = glm::vec3(1);
+	return b;
+}
+
 Hit Sphere::intersects(const Ray &ray) {
 	Hit h;
 

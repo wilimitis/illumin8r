@@ -4,5 +4,6 @@
 
 class Sphere : public Object {
   public:
+    Box computeBox();
     Hit intersects(const Ray &ray);
 };

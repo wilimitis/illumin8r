@@ -1,16 +1,16 @@
 #pragma once
 
 #include "glm/glm.hpp"
-#include "../hit.h"
-#include "../ray.h"
+#include "box.h"
+#include "surface.h"
 
-class Object {
+class Object : public Surface {
   public:
     glm::mat4 localTransformation;
 
     Object();
 
-    virtual Hit intersects(const Ray &ray) = 0;
+    virtual Box computeBox() = 0;
 
     Ray getLocal(const Ray &ray);
     Ray getWorld(const Ray &ray);
