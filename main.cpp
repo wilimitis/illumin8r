@@ -9,6 +9,7 @@ using json = nlohmann::json;
 #include "src/image.h"
 #include "src/light/pointLight.h"
 #include "src/render.h"
+#include "src/object/mesh.h"
 #include "src/object/sphere.h"
 #include "src/window.h"
 
@@ -47,14 +48,19 @@ void setupLights(json node) {
 
 void setupObjects(json node) {
   for (auto& object : node) {
+    Object* o;
     if (object["type"] == "sphere") {
-      Sphere* s = new Sphere();
-      json rotate = object["rotate"];
-      s->rotate(rotate["angle"], getVec3(rotate["axis"]));
-      s->scale(getVec3(object["scale"]));
-      s->translate(getVec3(object["translate"]));
-      objects.push_back(s);
+      o = new Sphere();
+    } else if (object["type"] == "obj") {
+      o = new Mesh();
+      std::string file = object["file"];
+      ((Mesh*) o)->init(file.c_str());
     }
+    json rotate = object["rotate"];
+    o->translate(getVec3(object["translate"]));
+    o->scale(getVec3(object["scale"]));
+    o->rotate(rotate["angle"], getVec3(rotate["axis"]));
+    objects.push_back(o);
   }
 }
 

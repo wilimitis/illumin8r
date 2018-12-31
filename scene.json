@@ -1,58 +1,31 @@
 {
   "camera": {
-    "direction": {
-      "x": 0,
-      "y": 0,
-      "z": -1
-    },
+    "direction": {"x": 0, "y": 0, "z": -1},
     "fieldOfView": 30,
-    "position": {
-      "x": 0,
-      "y": 0,
-      "z": 10
-    },
-    "up": {
-      "x": 0,
-      "y": 1,
-      "z": 0
-    }
+    "position": {"x": 0, "y": 0, "z": 50},
+    "up": {"x": 0, "y": 1, "z": 0}
   },
   "image": {
     "height": 400,
     "width": 400,
-    "render": "depth"
+    "render": "normal"
   },
   "lights": [
     {
       "type": "point",
-      "position": {
-        "x": 5,
-        "y": 5,
-        "z": 0
-      }
+      "position": { "x": 5, "y": 5, "z": 0}
     }
   ],
   "objects": [
     {
-      "type": "sphere",
+      "type": "obj",
+      "file": "models/plane.obj",
       "rotate": {
-        "angle": 180,
-        "axis": {
-          "x": 1,
-          "y": 0,
-          "z": 0
-        }
+        "angle": 1.5,
+        "axis": {"x": 0, "y": 1, "z": 0}
       },
-      "scale": {
-        "x": 1,
-        "y": 1,
-        "z": 1
-      },
-      "translate": {
-        "x": 0,
-        "y": 1,
-        "z": 0
-      }
+      "scale": {"x": 1, "y": 1, "z": 1},
+      "translate": {"x": -10, "y": 0, "z": 0}
     }
   ]
 }
