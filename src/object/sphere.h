@@ -4,5 +4,5 @@
 
 class Sphere : public Object {
   public:
-    virtual Hit intersects(const Ray &ray);
+    Hit intersects(const Ray &ray);
 };

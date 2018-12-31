@@ -17,6 +17,18 @@
     "ostream": "cpp",
     "iostream": "cpp",
     "random": "cpp",
-    "memory_resource": "cpp"
+    "memory_resource": "cpp",
+    "__hash_table": "cpp",
+    "__split_buffer": "cpp",
+    "__tree": "cpp",
+    "array": "cpp",
+    "bitset": "cpp",
+    "hash_map": "cpp",
+    "iterator": "cpp",
+    "list": "cpp",
+    "map": "cpp",
+    "string": "cpp",
+    "string_view": "cpp",
+    "valarray": "cpp"
   }
 }

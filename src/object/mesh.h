@@ -5,22 +5,20 @@
 
 class Mesh : public Object {
   private:
-    virtual Hit intersects(
-      const Ray &ray,
-      const glm::vec3 &v0,
-      const glm::vec3 &v1,
-      const glm::vec3 &v2,
-      const glm::vec3 &n0,
-      const glm::vec3 &n1,
-      const glm::vec3 &n2,
-      bool cull = true);
+    class Triangle : public Object {
+      public:
+        static const bool cull = true;
+        static const int vertexCount = 3;
+        
+        glm::vec3 verticies[vertexCount];
+        glm::vec3 normals[vertexCount];
+
+        Hit intersects(const Ray &ray);
+    };
+
+    std::vector<Object*> objects;
 
   public:
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-
-    virtual Hit intersects(const Ray &ray);
-
     void init(const char* file);
+    Hit intersects(const Ray &ray);
 };

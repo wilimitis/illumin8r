@@ -3,22 +3,13 @@
 #include <iostream>
 #include "mesh.h"
 
-Hit Mesh::intersects(
-	const Ray &ray,
-	const glm::vec3 &v0,
-	const glm::vec3 &v1,
-	const glm::vec3 &v2,
-	const glm::vec3 &n0,
-	const glm::vec3 &n1,
-	const glm::vec3 &n2,
-	bool cull
-) {
+Hit Mesh::Triangle::intersects(const Ray &ray) {
   Hit h;
 
 	// http://www.graphics.cornell.edu/pubs/1997/MT97.pdf
 	float eta = 0.000001;
-	glm::vec3 e1 = v1 - v0;
-	glm::vec3 e2 = v2 - v0;
+	glm::vec3 e1 = verticies[1] - verticies[0];
+	glm::vec3 e2 = verticies[2] - verticies[0];
 
 	glm::vec3 p = glm::cross(ray.direction, e2);
 	float d = glm::dot(e1, p);
@@ -31,7 +22,7 @@ Hit Mesh::intersects(
 			return h;
 		}
 
-		glm::vec3 t = ray.position - v0;
+		glm::vec3 t = ray.position - verticies[0];
 		u = glm::dot(t, p);
 		if (u < 0 || u > d) {
 			return h;
@@ -54,7 +45,7 @@ Hit Mesh::intersects(
 		}
 
 		float di = 1.0 / d;
-		glm::vec3 t = ray.position - v0;
+		glm::vec3 t = ray.position - verticies[0];
 		u = glm::dot(t, p) * di;
 		if (u < 0 || u > 1) {
 			return h;
@@ -75,48 +66,52 @@ Hit Mesh::intersects(
 
 	h.distance = z;
 	h.position = ray.position + h.distance * ray.direction;
-	h.normal = (1 - u - v) * n0 + u * n1 + v * n2;
+	h.normal = (1 - u - v) * normals[0] + u * normals[1] + v * normals[2];
   h.isEmpty = false;
 	return h;
 }
 
 Hit Mesh::intersects(const Ray &ray) {
 	Hit result;
-	for (int shapeIndex = 0; shapeIndex < shapes.size(); shapeIndex++) {
-		int vertexIndexOffset = 0;
-		int faceCount = shapes[shapeIndex].mesh.num_face_vertices.size();
-		for (int faceIndex = 0; faceIndex < faceCount; faceIndex++) {
-			// Assumed to equal 3 as the object loader triangulates by default.
-			int vertexCount = 3;
-			glm::vec3 verticies[vertexCount];
-			glm::vec3 normals[vertexCount];
-			for (int vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++) {
-				tinyobj::index_t index = shapes[shapeIndex].mesh.indices[vertexIndexOffset + vertexIndex];
-				verticies[vertexIndex] = glm::vec3(
-					attrib.vertices[vertexCount * index.vertex_index],
-					attrib.vertices[vertexCount * index.vertex_index + 1],
-					attrib.vertices[vertexCount * index.vertex_index + 2]);
-				normals[vertexIndex] = glm::vec3(
-					attrib.normals[vertexCount * index.normal_index],
-					attrib.normals[vertexCount * index.normal_index + 1],
-					attrib.normals[vertexCount * index.normal_index + 2]);
-			}
-			Hit hit = intersects(ray,
-				verticies[0], verticies[1], verticies[2],
-				normals[0], normals[1], normals[2]);
-			if (result.isEmpty || hit.distance < result.distance) {
-				result = hit;
-			}
-			vertexIndexOffset += vertexCount;
+	for (int i = 0; i < objects.size(); i++) {
+		Hit hit = objects.at(i)->intersects(ray);
+		if (result.isEmpty || hit.distance < result.distance) {
+			result = hit;
 		}
 	}
 	return result;
 }
 
 void Mesh::init(const char* file) {
+	tinyobj::attrib_t attrib;
+  std::vector<tinyobj::material_t> materials;
+  std::vector<tinyobj::shape_t> shapes;
 	std::string err;
 	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, file);
 	if (!err.empty()) {
 		std::cerr << err << std::endl;
+	}
+
+	for (int shapeIndex = 0; shapeIndex < shapes.size(); shapeIndex++) {
+		int vertexIndexOffset = 0;
+		int faceCount = shapes[shapeIndex].mesh.num_face_vertices.size();
+		for (int faceIndex = 0; faceIndex < faceCount; faceIndex++) {
+			Triangle* triangle = new Triangle();
+			// Assumed to equal 3 as the object loader triangulates by default.
+			int vertexCount = Triangle::vertexCount;
+			for (int vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++) {
+				tinyobj::index_t index = shapes[shapeIndex].mesh.indices[vertexIndexOffset + vertexIndex];
+				triangle->verticies[vertexIndex] = glm::vec3(
+					attrib.vertices[vertexCount * index.vertex_index],
+					attrib.vertices[vertexCount * index.vertex_index + 1],
+					attrib.vertices[vertexCount * index.vertex_index + 2]);
+				triangle->normals[vertexIndex] = glm::vec3(
+					attrib.normals[vertexCount * index.normal_index],
+					attrib.normals[vertexCount * index.normal_index + 1],
+					attrib.normals[vertexCount * index.normal_index + 2]);
+			}
+			objects.push_back(triangle);
+			vertexIndexOffset += vertexCount;
+		}
 	}
 }

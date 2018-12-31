@@ -8,9 +8,9 @@ class Object {
   public:
     glm::mat4 localTransformation;
 
-    virtual Hit intersects(const Ray &ray) = 0;
-
     Object();
+
+    virtual Hit intersects(const Ray &ray) = 0;
 
     Ray getLocal(const Ray &ray);
     Ray getWorld(const Ray &ray);
