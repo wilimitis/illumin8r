@@ -20,7 +20,7 @@
     {
       "type": "obj",
       "accelerated": true,
-      "file": "models/teapot-low.obj",
+      "file": "models/teapot.obj",
       "rotate": {
         "angle": -1.5,
         "axis": {"x": 1, "y": 0, "z": 0}
