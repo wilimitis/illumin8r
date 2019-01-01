@@ -9,7 +9,6 @@ using json = nlohmann::json;
 #include "src/image.h"
 #include "src/material/phong.h"
 #include "src/light/pointLight.h"
-#include "src/render.h"
 #include "src/object/mesh.h"
 #include "src/object/sphere.h"
 #include "src/render.h"
