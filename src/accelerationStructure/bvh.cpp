@@ -47,7 +47,6 @@ BVH::BVH(std::vector<Object*> objects, int axis) {
   }
 }
 
-
 Box BVH::combine(const Box &box1, const Box &box2) {
   Box b;
 	b.min = glm::vec3(
