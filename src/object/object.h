@@ -10,6 +10,7 @@ class Object : public Surface {
 
     Object();
 
+    // TODO: Precompute.
     virtual Box computeBox() = 0;
 
     Ray getLocal(const Ray &ray);
