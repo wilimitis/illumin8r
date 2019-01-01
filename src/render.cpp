@@ -1,6 +1,7 @@
 #include <glm/glm.hpp>
 #include <stdio.h>
 #include <time.h>
+#include "light/photonMap.h"
 #include "ray.h"
 #include "render.h"
 #include "utils.h"
@@ -49,7 +50,7 @@ Ray getRay(int x, int y, Camera camera, Image image) {
   return Ray(rd, camera.position);
 }
 
-Hit cast(const Ray &ray, std::vector<Object*> objects) {
+Hit cast(const Ray &ray, const std::vector<Object*> &objects) {
   Hit result;
   for (int i = 0; i < objects.size(); i++) {
     Object* object = objects.at(i);
@@ -63,6 +64,7 @@ Hit cast(const Ray &ray, std::vector<Object*> objects) {
     hit.position = intersectionRay.position;
     hit.distance = glm::length(hit.position - ray.position);
     if (result.isEmpty || hit.distance < result.distance) {
+      hit.material = object->material;
       hit.normal = intersectionRay.direction;
       result = hit;
     }
@@ -75,7 +77,7 @@ void renderDepth(
   int y,
   Image &image,
   const Ray &ray,
-  std::vector<Object*> objects
+  const std::vector<Object*> &objects
 ) {
   Hit hit = cast(ray, objects);
   image.setBuffer(x, y, hit.isEmpty ? -1 : hit.distance);
@@ -86,7 +88,7 @@ void renderHit(
   int y,
   Image &image,
   const Ray &ray,
-  std::vector<Object*> objects
+  const std::vector<Object*> &objects
 ) {
   Hit hit = cast(ray, objects);
   glm::vec3 color = glm::vec3(hit.isEmpty ? BLACK : WHITE);
@@ -98,7 +100,7 @@ void renderNormal(
   int y,
   Image &image,
   const Ray &ray,
-  std::vector<Object*> objects
+  const std::vector<Object*> &objects
 ) {
   Hit hit = cast(ray, objects);
   glm::vec3 color;
@@ -120,7 +122,7 @@ void renderPixel(
   int y,
   Image &image,
   const Ray &ray,
-  std::vector<Object*> objects
+  const std::vector<Object*> &objects
 ) {
   // TODO: Extract Renderer class.
   if (image.render == "depth") {
@@ -129,6 +131,20 @@ void renderPixel(
     renderHit(x, y, image, ray, objects);
   } else if (image.render == "normal") {
     renderNormal(x, y, image, ray, objects);
+  }
+}
+
+void render(
+  Camera camera,
+  Image image,
+  const std::vector<Light*> &lights,
+  const std::vector<Object*> &objects
+) {
+  for (int x = 0; x < image.width; x++) {
+    for (int y = 0; y < image.height; y++) {
+      Ray ray = getRay(x, y, camera, image);
+      renderPixel(x, y, image, ray, objects);
+    }
   }
 }
 
@@ -160,25 +176,11 @@ void postRender(Image image) {
   }
 }
 
-void render(
-  Camera camera,
-  Image image,
-  std::vector<Light*> lights,
-  std::vector<Object*> objects
-) {
-  for (int x = 0; x < image.width; x++) {
-    for (int y = 0; y < image.height; y++) {
-      Ray ray = getRay(x, y, camera, image);
-      renderPixel(x, y, image, ray, objects);
-    }
-  }
-}
-
 void Render(
   Camera camera,
   Image image,
-  std::vector<Light*> lights,
-  std::vector<Object*> objects
+  const std::vector<Light*> &lights,
+  const std::vector<Object*> &objects
 ) {
   int	startTime =  (int) time(NULL);
 

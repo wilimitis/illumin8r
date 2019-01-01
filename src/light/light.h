@@ -5,7 +5,8 @@
 
 class Light {
   public:
+    glm::vec3 intensity;
     glm::vec3 position;
     
-    virtual Ray sampleDirection() = 0;
+    virtual Ray sampleDirection() const = 0;
 };

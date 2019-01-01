@@ -6,9 +6,11 @@
 #include "light/light.h"
 #include "object/object.h"
 
+Hit cast(const Ray &ray, const std::vector<Object*> &objects);
+
 void Render(
   Camera camera,
   Image image,
-  std::vector<Light*> lights,
-  std::vector<Object*> objects
+  const std::vector<Light*> &lights,
+  const std::vector<Object*> &objects
 );

@@ -4,5 +4,5 @@
 
 class PointLight : public Light {
   public:
-    virtual Ray sampleDirection();
+    virtual Ray sampleDirection() const;
 };
