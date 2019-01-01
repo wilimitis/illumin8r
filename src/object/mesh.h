@@ -8,7 +8,7 @@ class Mesh : public Object {
   private:
     class Triangle : public Object {
       public:
-        static const bool cull = true;
+        static const bool cull = false;
         static const int vertexCount = 3;
         
         glm::vec3 vertices[vertexCount];
