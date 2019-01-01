@@ -28,7 +28,7 @@ Ray Object::getWorld(const Ray &ray) {
 }
 
 void Object::rotate(float angle, const glm::vec3 &axis) {
-  localTransformation = glm::rotate(localTransformation, angle, axis);
+  localTransformation = glm::rotate(localTransformation, glm::radians(angle), axis);
 }
 
 void Object::scale(const glm::vec3 &scale) {
