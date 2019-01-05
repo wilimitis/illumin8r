@@ -71,6 +71,7 @@ Hit cast(const Ray &ray, const std::vector<Object*> &objects) {
         // We've hit the back.
         hit.normal *= -1;
       }
+      hit.objectKey = object->key;
       result = hit;
     }
   }

@@ -9,6 +9,7 @@ class Hit {
     bool isEmpty;
     Material* material;
     glm::vec3 normal;
+    std::string objectKey;
     glm::vec3 position;
 
     Hit();

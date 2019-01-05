@@ -6,6 +6,7 @@
 
 class Object : public Surface {
   public:
+    std::string key;
     glm::mat4 localTransformation;
 
     Object();

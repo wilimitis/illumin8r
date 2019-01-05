@@ -81,6 +81,7 @@ void setupObjects(json node) {
       std::string file = object["file"];
       ((Mesh*) o)->init(file.c_str(), object["accelerated"]);
     }
+    o->key = object["key"];
     o->material = find(object["material"]);
     json rotate = object["rotate"];
     o->translate(getVec3(object["translate"]));
