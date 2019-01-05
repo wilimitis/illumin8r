@@ -121,6 +121,7 @@ void Mesh::init(const char* file, bool accelerated) {
 		for (int faceIndex = 0; faceIndex < faceCount; faceIndex++) {
 			Triangle* triangle = new Triangle();
 			// Assumed to equal 3 as the object loader triangulates by default.
+			// TODO: Manually compute normals if not provided.
 			int vertexCount = Triangle::vertexCount;
 			for (int vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++) {
 				tinyobj::index_t index = shapes[shapeIndex].mesh.indices[vertexIndexOffset + vertexIndex];
