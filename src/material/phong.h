@@ -6,6 +6,6 @@ class Phong : public Material {
   public:
     int lobe;
 
-    virtual glm::vec3 sampleDiffuseDirection() const;
-    virtual glm::vec3 sampleSpecularDirection() const;
+    virtual Sample sampleDiffuse(const glm::vec3 &ki, const glm::vec3 &normal) const;
+    virtual Sample sampleSpecular(const glm::vec3 &ki, const glm::vec3 &normal) const;
 };

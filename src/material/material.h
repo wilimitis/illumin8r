@@ -5,13 +5,21 @@
 
 class Material {
   public:
+    struct Sample {
+      glm::vec3 brdf;
+      glm::vec3 direction;
+      float pdf;
+    };
+
     std::string key;
     glm::vec3 diffuse;
     glm::vec3 specular;
     float refractiveIndex;
 
-    virtual glm::vec3 sampleDiffuseDirection() const = 0;
-    virtual glm::vec3 sampleSpecularDirection() const = 0;
-
+    glm::vec3 sampleWorld(const glm::vec3 &direction, const glm::vec3 &up) const;
+    
+    virtual Sample sampleDiffuse(const glm::vec3 &ki, const glm::vec3 &normal) const = 0;
+    virtual Sample sampleSpecular(const glm::vec3 &ki, const glm::vec3 &normal) const = 0;
+    
     bool isSpecular();
 };
