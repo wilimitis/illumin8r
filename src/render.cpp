@@ -67,6 +67,10 @@ Hit cast(const Ray &ray, const std::vector<Object*> &objects) {
       hit.material = object->material;
       hit.normal = intersectionRay.direction;
       assert(glm::isNormalized(intersectionRay.direction, 0.1f));
+      if (glm::dot(ray.direction, hit.normal) > 0) {
+        // We've hit the back.
+        hit.normal *= -1;
+      }
       result = hit;
     }
   }
