@@ -69,6 +69,7 @@ Hit cast(const Ray &ray, const std::vector<Object*> &objects) {
       assert(glm::isNormalized(intersectionRay.direction, 0.1f));
       if (glm::dot(ray.direction, hit.normal) > 0) {
         // We've hit the back.
+        hit.isInside = true;
         hit.normal *= -1;
       }
       hit.objectKey = object->key;

@@ -7,6 +7,7 @@ class Hit {
   public:
     float distance;
     bool isEmpty;
+    bool isInside;
     Material* material;
     glm::vec3 normal;
     std::string objectKey;

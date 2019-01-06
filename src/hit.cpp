@@ -2,4 +2,5 @@
 
 Hit::Hit() {
   isEmpty = true;
+  isInside = false;
 }
