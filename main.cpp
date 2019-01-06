@@ -79,7 +79,7 @@ void setupObjects(json node) {
     } else if (object["type"] == "obj") {
       o = new Mesh();
       std::string file = object["file"];
-      ((Mesh*) o)->init(file.c_str(), object["accelerated"]);
+      ((Mesh*) o)->init(file.c_str());
     }
     o->key = object["key"];
     o->material = find(object["material"]);
