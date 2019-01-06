@@ -105,7 +105,7 @@ Hit Mesh::intersects(const Ray &ray) {
 	return result;
 }
 
-void Mesh::init(const char* file, bool accelerated) {
+void Mesh::init(const char* file) {
 	tinyobj::attrib_t attrib;
   std::vector<tinyobj::material_t> materials;
   std::vector<tinyobj::shape_t> shapes;
@@ -139,7 +139,5 @@ void Mesh::init(const char* file, bool accelerated) {
 		}
 	}
 
-	if (accelerated) {
-		accelerationStructure = new BVH(objects);
-	}
+	accelerationStructure = new BVH(objects);
 }

@@ -25,5 +25,5 @@ class Mesh : public Object {
     Box computeBox();
     Hit intersects(const Ray &ray);
     
-    void init(const char* file, bool accelerated);
+    void init(const char* file);
 };
