@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include "material/material.h"
 
+class Material;
+
 class Hit {
   public:
     float distance;

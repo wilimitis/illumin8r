@@ -19,12 +19,16 @@ void PhotonMap::emitPhoton(
   if (hit.isEmpty) {
     return;
   }
-  if (!requiresSpecularHit && !hit.material->isSpecular()) {
+
+  // Store hits on diffuse surfaces only.
+  if (!requiresSpecularHit && hit.material->isDiffuse()) {
     Photon* p = new Photon();
     p->position = hit.position;
     p->power = photon->power;
     photons.push_back(p);
   }
+
+  // Flip a coin.
   float random = glm::linearRand(0.0f, 1.0f);
   float Pmax = std::max({photon->power.x, photon->power.y, photon->power.z});
   float Pd = std::max({
@@ -35,9 +39,14 @@ void PhotonMap::emitPhoton(
       hit.material->specular.x * photon->power.x,
       hit.material->specular.y * photon->power.y,
       hit.material->specular.z * photon->power.z}) / Pmax;
+  float Pr = std::max({
+      hit.material->refractive.x * photon->power.x,
+      hit.material->refractive.y * photon->power.y,
+      hit.material->refractive.z * photon->power.z}) / Pmax;
+  
+  // Choose a path.
   if (random < Pd) {
-    // Diffuse reflection.
-    Material::Sample sample = hit.material->sampleDiffuse(-ray.direction, hit.normal);
+    Material::Sample sample = hit.material->sampleDiffuse(-ray.direction, hit);
     assert(glm::dot(hit.normal, sample.direction) >= 0);
     photon->power = photon->power *
       glm::dot(sample.direction, hit.normal) *
@@ -45,26 +54,39 @@ void PhotonMap::emitPhoton(
       sample.pdf /
       Pd;
     ray.direction = sample.direction;
+    assert(glm::dot(ray.direction, hit.normal) > 0);
   } else if (random < Pd + Ps) {
-    // Specular reflection.
-    // TODO: refraction.
     requiresSpecularHit = false;
-    Material::Sample sample = hit.material->sampleSpecular(-ray.direction, hit.normal);
+    Material::Sample sample = hit.material->sampleSpecular(-ray.direction, hit);
+    if (glm::dot(hit.normal, sample.direction) < 0) {
+      return;
+    }
     photon->power = photon->power *
       glm::dot(sample.direction, hit.normal) *
       sample.brdf /
       sample.pdf /
       Ps;
     ray.direction = sample.direction;
-    if (glm::dot(hit.normal, sample.direction) < 0) {
+    assert(glm::dot(ray.direction, hit.normal) > 0);
+  } else if (random < Pd + Ps + Pr) {
+    requiresSpecularHit = false;
+    Material::Sample sample = hit.material->sampleRefractive(-ray.direction, hit);
+    if (sample.direction == glm::vec3(0)) {
+      // TIR.
       return;
     }
-  } else  {
+    photon->power = photon->power *
+      glm::dot(sample.direction, hit.normal) *
+      sample.brdf /
+      sample.pdf /
+      Pr;
+    ray.direction = sample.direction;
+    assert(glm::dot(ray.direction, hit.normal) < 0);
+  } else {
     // Absorption.
     return;
   }
   assert(glm::isNormalized(ray.direction, 0.1f));
-  assert(glm::dot(ray.direction, hit.normal) > 0);
   // TODO: Parameterize bias.
   float bias = 0.0001f;
   ray.position = hit.position + bias * ray.direction;

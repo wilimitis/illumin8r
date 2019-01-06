@@ -7,7 +7,9 @@ using json = nlohmann::json;
 #include <vector>
 #include "src/camera.h"
 #include "src/image.h"
+#include "src/material/dielectric.h"
 #include "src/material/phong.h"
+#include "src/light/photonMap.h"
 #include "src/light/pointLight.h"
 #include "src/object/mesh.h"
 #include "src/object/sphere.h"
@@ -21,7 +23,13 @@ std::vector<Material*> materials;
 std::vector<Object*> objects;
 
 glm::vec3 getVec3(json node) {
-  return glm::vec3(node["x"], node["y"], node["z"]);
+  return node.empty() ?
+    glm::vec3(0) :
+    glm::vec3(node["x"], node["y"], node["z"]);
+}
+
+float getFloat(json node) {
+  return node.empty() ? 0.0f : node.get<float>();
 }
 
 void setupCamera(json node) {
@@ -35,6 +43,9 @@ void setupImage(json node) {
   image.height = node["height"];
   image.width = node["width"];
   image.render = node["render"];
+  // TODO: Extract cleaner structure.
+  PhotonMap::photonCount = node["photonCount"];
+  PhotonMap::photonSearchDistanceSquared = node["photonSearchDistanceSquared"];
   image.init();
 }
 
@@ -56,7 +67,14 @@ void setupMaterials(json node) {
       m->key = material["key"];
       m->diffuse = getVec3(material["diffuse"]);
       m->specular = getVec3(material["specular"]);
-      m->lobe = material["lobe"];
+      m->lobe = getFloat(material["lobe"]);
+      materials.push_back(m);
+    } else if (material["type"] == "dielectric") {
+      Dielectric* m = new Dielectric();
+      m->key = material["key"];
+      m->specular = getVec3(material["specular"]);
+      m->refractive = getVec3(material["refractive"]);
+      m->refractiveIndex = getFloat(material["refractiveIndex"]);
       materials.push_back(m);
     }
   }

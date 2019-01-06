@@ -1,7 +1,7 @@
 #include "material.h"
 
-bool Material::isSpecular() {
-  return specular != glm::vec3(0);
+bool Material::isDiffuse() {
+  return specular == glm::vec3(0) && refractive == glm::vec3(0);
 }
 
 glm::vec3 Material::sampleWorld(const glm::vec3 &direction, const glm::vec3 &normal) const {

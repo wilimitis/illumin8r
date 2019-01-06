@@ -29,6 +29,7 @@
     "map": "cpp",
     "string": "cpp",
     "string_view": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "iosfwd": "cpp"
   }
 }

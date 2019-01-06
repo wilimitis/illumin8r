@@ -8,34 +8,33 @@
   "image": {
     "height": 400,
     "width": 400,
-    "render": "normal",
-    "photonCount": 10000
+    "render": "photon",
+    "photonCount": 10000,
+    "photonSearchDistanceSquared": 0.01
   },
   "lights": [
     {
       "type": "point",
       "intensity": {"x": 1, "y": 1, "z": 1},
-      "position": {"x": 0, "y": 7, "z": 10}
+      "position": {"x": -4, "y": -14, "z": 16}
     }
   ],
   "materials": [
     {
-      "key": "m1",
-      "type": "phong",
-      "diffuse": {"x": 0.7, "y": 0.7, "z": 0.7},
-      "specular": {"x": 0.3, "y": 0.3, "z": 0.3},
-      "lobe": 50
-    },
-    {
       "key": "m2",
       "type": "phong",
-      "diffuse": {"x": 1, "y": 1, "z": 1},
-      "specular": {"x": 0, "y": 0, "z": 0},
-      "lobe": 0
+      "diffuse": {"x": 0.9, "y": 0.9, "z": 0.9}
+    },
+    {
+      "key": "m1",
+      "type": "dielectric",
+      "refractive": {"x": 0.9, "y": 0.9, "z": 0.9},
+      "refractiveIndex": 1.54
     }
   ],
   "objects": [
     {
+      "key": "sphere",
       "type": "sphere",
       "material": "m1",
       "rotate": {
@@ -46,9 +45,9 @@
       "translate": {"x": 0, "y": -16, "z": 16}
     },
     {
+      "key": "back",
       "type": "obj",
       "file": "models/plane.obj",
-      "accelerated": true,
       "material": "m2",
       "rotate": {
         "angle": 0,
@@ -58,9 +57,9 @@
       "translate": {"x": 0, "y": 0, "z": 0}
     },
     {
+      "key": "bottom",
       "type": "obj",
       "file": "models/plane.obj",
-      "accelerated": true,
       "material": "m2",
       "rotate": {
         "angle": 90,
@@ -70,9 +69,9 @@
       "translate": {"x": 0, "y": -18, "z": 18}
     },
     {
+      "key": "top",
       "type": "obj",
       "file": "models/plane.obj",
-      "accelerated": true,
       "material": "m2",
       "rotate": {
         "angle": 90,
@@ -82,9 +81,9 @@
       "translate": {"x": 0, "y": 18, "z": 18}
     },
     {
+      "key": "left",
       "type": "obj",
       "file": "models/plane.obj",
-      "accelerated": true,
       "material": "m2",
       "rotate": {
         "angle": 90,
@@ -94,9 +93,9 @@
       "translate": {"x": -18, "y": 0, "z": 18}
     },
     {
+      "key": "right",
       "type": "obj",
       "file": "models/plane.obj",
-      "accelerated": true,
       "material": "m2",
       "rotate": {
         "angle": 90,
@@ -106,9 +105,9 @@
       "translate": {"x": 18, "y": 0, "z": 18}
     },
     {
+      "key": "front",
       "type": "obj",
       "file": "models/plane.obj",
-      "accelerated": true,
       "material": "m2",
       "rotate": {
         "angle": 0,

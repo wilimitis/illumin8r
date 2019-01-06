@@ -1,4 +1,6 @@
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/vector_query.hpp>
 #include <stdio.h>
 #include <time.h>
 #include "light/photonMap.h"
@@ -8,6 +10,8 @@
 
 #define WHITE 1
 #define BLACK 0
+
+PhotonMap causticPhotonMap, globalPhotonMap;
 
 Ray getRay(int x, int y, Camera camera, Image image) {
   // Compute aspect ratio.
@@ -69,7 +73,9 @@ Hit cast(const Ray &ray, const std::vector<Object*> &objects) {
       assert(glm::isNormalized(intersectionRay.direction, 0.1f));
       if (glm::dot(ray.direction, hit.normal) > 0) {
         // We've hit the back.
-        hit.isInside = true;
+        if (hit.material->refractiveIndex != 0) {
+          hit.isInside = true;
+        }
         hit.normal *= -1;
       }
       hit.objectKey = object->key;
@@ -77,6 +83,17 @@ Hit cast(const Ray &ray, const std::vector<Object*> &objects) {
     }
   }
   return result;
+}
+
+void preRender(
+  Image image,
+  const std::vector<Light*> &lights,
+  const std::vector<Object*> &objects
+) {
+  if (image.render == "photon") {
+    causticPhotonMap.init(lights, objects, true /* requiresSpecularHit */);
+    // globalPhotonMap.init(lights, objects, false /* requiresSpecularHit */);
+  }
 }
 
 void renderDepth(
@@ -124,6 +141,32 @@ void renderNormal(
   image.setPixel(x, y, color);
 }
 
+void renderPhoton(
+  int x,
+  int y,
+  Image &image,
+  const Ray &ray,
+  const std::vector<Object*> &objects
+) {
+  Hit hit = cast(ray, objects);
+  glm::vec3 color = glm::vec3(BLACK);
+  if (hit.isEmpty) {
+    return;
+  }
+
+  std::vector<PhotonMap::Photon*> nearest;
+  causticPhotonMap.getNearest(nearest, causticPhotonMap.photonNode, hit.position);
+  glm::vec3 power = glm::vec3(0);
+  for (int i = 0; i < nearest.size(); i++) {
+    power += (nearest.at(i)->power);// / float(PhotonMap::photonCount));
+  }
+  // power /= (M_PI * PhotonMap::photonSearchDistanceSquared);
+  if (nearest.size() > 0) {
+    power = glm::vec3(1);
+  }
+  image.setPixel(x, y, power);
+}
+
 void renderPixel(
   int x,
   int y,
@@ -138,6 +181,8 @@ void renderPixel(
     renderHit(x, y, image, ray, objects);
   } else if (image.render == "normal") {
     renderNormal(x, y, image, ray, objects);
+  } else if (image.render == "photon") {
+    renderPhoton(x, y, image, ray, objects);
   }
 }
 
@@ -191,6 +236,7 @@ void Render(
 ) {
   int	startTime =  (int) time(NULL);
 
+  preRender(image, lights, objects);
   render(camera, image, lights, objects);
   postRender(image);
 
