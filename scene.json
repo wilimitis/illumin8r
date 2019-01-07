@@ -1,22 +1,22 @@
 {
   "camera": {
-    "direction": {"x": 0, "y": 0, "z": -1},
+    "direction": {"x": 0, "y": -0.6, "z": -1},
     "fieldOfView": 30,
-    "position": {"x": 0, "y": -15, "z": 34},
+    "position": {"x": 0, "y": -9, "z": 32},
     "up": {"x": 0, "y": 1, "z": 0}
   },
   "image": {
     "height": 400,
     "width": 400,
     "render": "photon",
-    "photonCount": 100,
+    "photonCount": 1000,
     "photonSearchDistanceSquared": 0.001
   },
   "lights": [
     {
       "type": "point",
-      "intensity": {"x": 1, "y": 1, "z": 1},
-      "position": {"x": -4, "y": -12, "z": 16},
+      "intensity": {"x": 0.25, "y": 0.25, "z": 0.25},
+      "position": {"x": -4, "y": -13, "z": 16},
       "power": {"x": 100, "y": 100, "z": 100}
     }
   ],
@@ -24,13 +24,13 @@
     {
       "key": "m2",
       "type": "phong",
-      "diffuse": {"x": 0.5, "y": 0.5, "z": 0.5}
+      "diffuse": {"x": 0.9, "y": 0.9, "z": 0.9}
     },
     {
       "key": "m1",
       "type": "dielectric",
-      "specular": {"x": 0.2, "y": 0.2, "z": 0.3},
-      "refractive": {"x": 0.4, "y": 0.4, "z": 0.7},
+      "specular": {"x": 0.5, "y": 0.4, "z": 0.4},
+      "refractive": {"x": 0.5, "y": 0.4, "z": 0.4},
       "refractiveIndex": 1.54
     }
   ],

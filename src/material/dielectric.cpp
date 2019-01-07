@@ -1,15 +1,9 @@
 #include <glm/ext.hpp>
 #include "dielectric.h"
+#include "../utils.h"
 
 Material::Sample Dielectric::sampleDiffuse(const glm::vec3 &ki, const Hit &hit) const {
   throw std::logic_error("diffuse not supported for dielectrics");
-}
-
-float schlick(const glm::vec3 &normal, const glm::vec3 &incident, float n2) {
-  float n1 = 1.0f;
-  float Ro = ((n1 - n2) * (n1 - n2)) / ((n1 + n2) * (n1 + n2));
-  float c = glm::dot(normal, incident);
-	return Ro + (1.0f - Ro) * powf(1.0f - c, 5.0f);
 }
 
 Material::Sample Dielectric::sampleSpecular(const glm::vec3 &ki, const Hit &hit) const {

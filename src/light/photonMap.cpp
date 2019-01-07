@@ -30,6 +30,7 @@ void PhotonMap::emitPhoton(
 
   // Flip a coin.
   // TODO: Coin flip inside sampleSpecular to determine reflect/refract?
+  // TODO: Maybe just coin flip inside a single sample function?
   float random = glm::linearRand(0.0f, 1.0f);
   float Pmax = std::max({photon->power.x, photon->power.y, photon->power.z});
   float Pd = std::max({
@@ -186,5 +187,5 @@ void PhotonMap::init(
   std::cout << "photon emission complete: " << photons.size() << " / " << photonCount << std::endl;
 
   photonNode = new PhotonNode(photons);
-  std::cout << "photon map complete: " << photons.size() << " / " << photonCount << std::endl;
+  std::cout << "photon map complete: " << std::endl;
 }

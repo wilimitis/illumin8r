@@ -30,10 +30,13 @@ Material::Sample Phong::sampleSpecular(const glm::vec3 &ki, const Hit &hit) cons
       cosf(phi) * sqrtf(1.0f - powf(r2, 2.0f / (lobe + 1.0f))),
       sinf(phi) * sqrtf(1.0f - powf(r2, 2.0f / (lobe + 1.0f))),
       powf(r2, 1.0f / (lobe + 1.0f)));
-  // Center the sampled direction around the perfect specular reflection direction
-  // instead of the surface normal.
+  // Center the sampled direction around the perfect specular reflection direction.
   // http://ompf2.com/viewtopic.php?t=2013#p5090
   sample.direction = sampleWorld(direction, reflection);
+  if (glm::dot(hit.normal, sample.direction) < 0) {
+    // We've generated a sample in the lobe below the surface.
+    return sample;
+  }
   sample.brdf = specular *
     (lobe + 2.0f) *
     powf(glm::dot(sample.direction, reflection), lobe) /
