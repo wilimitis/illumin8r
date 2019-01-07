@@ -55,6 +55,7 @@ void setupLights(json node) {
       PointLight* l = new PointLight();
       l->intensity = getVec3(light["intensity"]);
       l->position = getVec3(light["position"]);
+      l->power = getVec3(light["power"]);
       lights.push_back(l);
     }
   }

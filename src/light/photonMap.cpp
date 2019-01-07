@@ -29,6 +29,7 @@ void PhotonMap::emitPhoton(
   }
 
   // Flip a coin.
+  // TODO: Coin flip inside sampleSpecular to determine reflect/refract?
   float random = glm::linearRand(0.0f, 1.0f);
   float Pmax = std::max({photon->power.x, photon->power.y, photon->power.z});
   float Pd = std::max({
@@ -176,7 +177,9 @@ void PhotonMap::init(
     for (int i = 0; i < photonCount / lights.size(); i++) {
       Ray ray = lights.at(lightIndex)->sampleDirection();
       Photon p;
-      p.power = lights.at(lightIndex)->intensity;
+      // TODO: Determine point light pdf and if other terms are missing.
+      // https://github.com/mmp/pbrt-v3/blob/master/src/integrators/sppm.cpp#L337
+      p.power = lights.at(lightIndex)->power;
       emitPhoton(ray, objects, &p, requiresSpecularHit);
     }
   }
