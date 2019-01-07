@@ -1,7 +1,7 @@
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/vector_query.hpp>
-#include <stdio.h>
+#include <iostream>
 #include <time.h>
 #include "light/photonMap.h"
 #include "ray.h"
@@ -141,30 +141,64 @@ void renderNormal(
   image.setPixel(x, y, color);
 }
 
+glm::vec3 computeDirect(
+  const std::vector<Light*> &lights,
+  const std::vector<Object*> &objects,
+  const Hit &hit
+) {
+  float bias = 0.001f;
+  glm::vec3 color = glm::vec3(BLACK);
+  for (int i = 0; i < lights.size(); i++) {
+    // Shadow.
+    glm::vec3 lightDirection = glm::normalize(lights.at(i)->position - hit.position);
+    Hit occlusion = cast(Ray(lightDirection, hit.position + bias * lightDirection), objects);
+    float lightDistance = glm::distance(lights.at(i)->position, hit.position);
+    float visibility = !occlusion.isEmpty && occlusion.distance <= lightDistance ? 0 : 1;
+    
+    // Diffuse.
+    float lambert = std::max(glm::dot(lightDirection, hit.normal), 0.0f);
+    color += lights.at(i)->intensity * hit.material->diffuse * lambert * visibility;
+  }
+  return color;
+}
+
+glm::vec3 computeIndirectSpecular(const Hit &hit) {
+  // TODO: Iterate after moving beyond pure dialectrics, right now there is only one sample to
+  // prevent useless iterations since each pure dialectric sample will be of the perfect path.
+  glm::vec3 color = glm::vec3(BLACK);
+  // color = hit.material->
+}
+
+glm::vec3 computeIndirectCaustic(const Hit &hit) {
+  std::vector<PhotonMap::Photon*> nearest;
+  causticPhotonMap.getNearest(nearest, causticPhotonMap.photonNode, hit.position);
+  glm::vec3 power = glm::vec3(0);
+  for (int i = 0; i < nearest.size(); i++) {
+    power += (nearest.at(i)->power) / float(PhotonMap::photonCount);
+  }
+  power /= (M_PI * PhotonMap::photonSearchDistanceSquared);
+  return power;
+}
+
+glm::vec3 computeIndirectSoft() {}
+
+// TODO: Refactor to return color at pixel.
 void renderPhoton(
   int x,
   int y,
   Image &image,
   const Ray &ray,
+  const std::vector<Light*> &lights,
   const std::vector<Object*> &objects
 ) {
   Hit hit = cast(ray, objects);
   glm::vec3 color = glm::vec3(BLACK);
-  if (hit.isEmpty) {
-    return;
+  if (!hit.isEmpty) {
+    color = 
+      computeDirect(lights, objects, hit) +
+      computeIndirectCaustic(hit);
   }
-
-  std::vector<PhotonMap::Photon*> nearest;
-  causticPhotonMap.getNearest(nearest, causticPhotonMap.photonNode, hit.position);
-  glm::vec3 power = glm::vec3(0);
-  for (int i = 0; i < nearest.size(); i++) {
-    power += (nearest.at(i)->power);// / float(PhotonMap::photonCount));
-  }
-  // power /= (M_PI * PhotonMap::photonSearchDistanceSquared);
-  if (nearest.size() > 0) {
-    power = glm::vec3(1);
-  }
-  image.setPixel(x, y, power);
+  image.setPixel(x, y, color);
 }
 
 void renderPixel(
@@ -172,6 +206,7 @@ void renderPixel(
   int y,
   Image &image,
   const Ray &ray,
+  const std::vector<Light*> &lights,
   const std::vector<Object*> &objects
 ) {
   // TODO: Extract Renderer class.
@@ -182,7 +217,7 @@ void renderPixel(
   } else if (image.render == "normal") {
     renderNormal(x, y, image, ray, objects);
   } else if (image.render == "photon") {
-    renderPhoton(x, y, image, ray, objects);
+    renderPhoton(x, y, image, ray, lights, objects);
   }
 }
 
@@ -195,7 +230,7 @@ void render(
   for (int x = 0; x < image.width; x++) {
     for (int y = 0; y < image.height; y++) {
       Ray ray = getRay(x, y, camera, image);
-      renderPixel(x, y, image, ray, objects);
+      renderPixel(x, y, image, ray, lights, objects);
     }
   }
 }
