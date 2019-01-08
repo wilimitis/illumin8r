@@ -13,14 +13,14 @@
 
 PhotonMap causticPhotonMap, globalPhotonMap;
 
-Ray getRay(int x, int y, Camera camera, Image image) {
+Ray getRay(const Scene &scene, int x, int y) {
   // Compute aspect ratio.
   // Shirley 7.5
-  float arw = image.width > image.height
-    ? float(image.width) / image.height
+  float arw = scene.image.width > scene.image.height
+    ? float(scene.image.width) / scene.image.height
     : 1;
-  float arh = image.height > image.width
-    ? float(image.height) / image.width
+  float arh = scene.image.height > scene.image.width
+    ? float(scene.image.height) / scene.image.width
     : 1;
   
   // Construct the orthographic view volume.
@@ -30,28 +30,28 @@ Ray getRay(int x, int y, Camera camera, Image image) {
 
   // Compute field of view.
   // Shirley 7.5
-  float tf = tan(glm::radians(camera.fieldOfView / 2)) * abs(near);
+  float tf = tan(glm::radians(scene.camera.fieldOfView / 2)) * abs(near);
 
   // Compute screen coordinates in camera space.
   // Shirley 10.2
   glm::vec3 sc = glm::vec3(
-    (left + (right - left) * ((x + 0.5) / image.width)) * arw * tf,
-    (bottom + (top - bottom) * ((y + 0.5) / image.height)) * arh * tf,
+    (left + (right - left) * ((x + 0.5) / scene.image.width)) * arw * tf,
+    (bottom + (top - bottom) * ((y + 0.5) / scene.image.height)) * arh * tf,
     -1
   );
 
   // Construct a coordinate system (orthonormal frame).
   // Shirley 7.2.1
-  glm::vec3 w = -glm::normalize(camera.direction);
-  glm::vec3 u = glm::normalize(glm::cross(camera.up, w));
+  glm::vec3 w = -glm::normalize(scene.camera.direction);
+  glm::vec3 u = glm::normalize(glm::cross(scene.camera.up, w));
   glm::vec3 v = glm::normalize(glm::cross(w, u));
 
   // Compute screen position in world space.
   // Shirley 10.2
-  glm::vec3 sw = camera.position + sc.x * u + sc.y * v + sc.z * w;
-  glm::vec3 rd = glm::normalize(sw - camera.position);
+  glm::vec3 sw = scene.camera.position + sc.x * u + sc.y * v + sc.z * w;
+  glm::vec3 rd = glm::normalize(sw - scene.camera.position);
 
-  return Ray(rd, camera.position);
+  return Ray(rd, scene.camera.position);
 }
 
 Hit cast(const Ray &ray, const std::vector<Object*> &objects) {
@@ -85,49 +85,27 @@ Hit cast(const Ray &ray, const std::vector<Object*> &objects) {
   return result;
 }
 
-void preRender(
-  Image image,
-  const std::vector<Light*> &lights,
-  const std::vector<Object*> &objects
-) {
-  if (image.render == "photon") {
-    causticPhotonMap.init(lights, objects, true /* requiresSpecularHit */);
+void preRender(const Scene &scene) {
+  if (scene.image.render == "photon") {
+    causticPhotonMap.init(scene.lights, scene.objects, true /* requiresSpecularHit */);
     // globalPhotonMap.init(lights, objects, false /* requiresSpecularHit */);
   }
 }
 
 // TODO: Move into pre render.
-void renderDepth(
-  int x,
-  int y,
-  Image &image,
-  const Ray &ray,
-  const std::vector<Object*> &objects
-) {
-  Hit hit = cast(ray, objects);
-  image.setBuffer(x, y, hit.isEmpty ? -1 : hit.distance);
+void renderDepth(Scene &scene, const Ray &ray, int x, int y) {
+  Hit hit = cast(ray, scene.objects);
+  scene.image.setBuffer(x, y, hit.isEmpty ? -1 : hit.distance);
 }
 
-void renderHit(
-  int x,
-  int y,
-  Image &image,
-  const Ray &ray,
-  const std::vector<Object*> &objects
-) {
-  Hit hit = cast(ray, objects);
+void renderHit(Scene &scene, const Ray &ray, int x, int y) {
+  Hit hit = cast(ray, scene.objects);
   glm::vec3 color = glm::vec3(hit.isEmpty ? BLACK : WHITE);
-  image.setPixel(x, y, color);
+  scene.image.setPixel(x, y, color);
 }
 
-void renderNormal(
-  int x,
-  int y,
-  Image &image,
-  const Ray &ray,
-  const std::vector<Object*> &objects
-) {
-  Hit hit = cast(ray, objects);
+void renderNormal(Scene &scene, const Ray &ray, int x, int y) {
+  Hit hit = cast(ray, scene.objects);
   glm::vec3 color;
   if (hit.isEmpty) {
     color = glm::vec3(BLACK);
@@ -139,14 +117,10 @@ void renderNormal(
       hit.normal.z
     );
   }
-  image.setPixel(x, y, color);
+  scene.image.setPixel(x, y, color);
 }
 
-glm::vec3 computeDirect(
-  const std::vector<Light*> &lights,
-  const std::vector<Object*> &objects,
-  const Hit &hit
-) {
+glm::vec3 computeDirect(Scene &scene, const Hit &hit) {
   // TODO: Iterate after moving beyond point lights, right now there is only one sample to
   // prevent useless iterations since each sample will be the path to the point light.
   float bias = 0.001f;
@@ -154,60 +128,21 @@ glm::vec3 computeDirect(
   if (hit.isEmpty || !hit.material->isDiffuse()) {
     return color;
   }
-  for (int i = 0; i < lights.size(); i++) {
+  for (int i = 0; i < scene.lights.size(); i++) {
     // Shadow.
-    glm::vec3 lightDirection = glm::normalize(lights.at(i)->position - hit.position);
-    Hit occlusion = cast(Ray(lightDirection, hit.position + bias * lightDirection), objects);
-    float lightDistance = glm::distance(lights.at(i)->position, hit.position);
+    glm::vec3 lightDirection = glm::normalize(scene.lights.at(i)->position - hit.position);
+    Hit occlusion = cast(Ray(lightDirection, hit.position + bias * lightDirection), scene.objects);
+    float lightDistance = glm::distance(scene.lights.at(i)->position, hit.position);
     float visibility = !occlusion.isEmpty && occlusion.distance <= lightDistance ? 0 : 1;
     
     // TODO: Extract method to compute direct light sample so that e.g. Phong can have its
     // specular component represented properly and e.g. Dielectrics, etc. can do as they please.
-    color += lights.at(i)->intensity *
+    color += scene.lights.at(i)->intensity *
       hit.material->diffuse * 
       abs(glm::dot(lightDirection, hit.normal)) *
       visibility;
   }
   return color;
-}
-
-glm::vec3 computeIndirectSpecular(
-  const std::vector<Light*> &lights,
-  const std::vector<Object*> &objects,
-  const Ray &ray,
-  const Hit &hit,
-  int bounces = 0
-) {
-  float bias = 0.001f;
-  float bounceMax = 3;
-  // TODO: Iterate after moving beyond ideal dialectrics, right now there is only one sample to
-  // prevent useless iterations since each pure dialectric sample will be of the perfect path.
-  glm::vec3 color = glm::vec3(BLACK);
-  if (bounces > bounceMax || hit.material->isDiffuse()) {
-    return color;
-  }
-  // Reflection.
-  Material::Sample reflectionSample = hit.material->sampleSpecular(-ray.direction, hit);
-  Ray reflectionRay = Ray(reflectionSample.direction, hit.position + bias * reflectionSample.direction);
-  Hit reflectionHit = cast(reflectionRay, objects);
-  glm::vec3 reflectionColor =
-    computeIndirectSpecular(lights, objects, reflectionRay, reflectionHit, bounces + 1) +
-    computeDirect(lights, objects, reflectionHit);
-    computeIndirectSoft(scene, reflectionRay, reflectionHit) +
-  reflectionColor *= (reflectionSample.brdf / reflectionSample.pdf);
-  // Refraction.
-  Material::Sample refractionSample = hit.material->sampleRefractive(-ray.direction, hit);
-  glm::vec3 refractionColor = glm::vec3(BLACK);
-  if (refractionSample.direction != glm::vec3(0) /* TIR */) {
-    Ray refractionRay = Ray(refractionSample.direction, hit.position + bias * refractionSample.direction);
-    Hit refractionHit = cast(refractionRay, objects);
-    refractionColor = 
-      computeIndirectSpecular(lights, objects, refractionRay, refractionHit, bounces + 1) +
-      computeDirect(lights, objects, refractionHit);
-      computeIndirectSoft(scene, refractionRay, refractionHit) +
-    refractionColor *= (refractionSample.brdf / refractionSample.pdf);
-  }
-  return reflectionColor + refractionColor;
 }
 
 glm::vec3 computeIndirectCaustic(const Hit &hit) {
@@ -221,14 +156,10 @@ glm::vec3 computeIndirectCaustic(const Hit &hit) {
   return power;
 }
 
-glm::vec3 computeIndirectSoft(
-  const std::vector<Light*> &lights,
-  const std::vector<Object*> &objects,
-  const Ray &ray,
-  const Hit &hit
-) {
+// TODO: Recurse bounded by bounces.
+glm::vec3 computeIndirectSoft(Scene &scene, const Ray &ray, const Hit &hit) {
   float bias = 0.001f;
-  int indirectSoftSamples = 4;
+  int indirectSoftSamples = 2;
   glm::vec3 color = glm::vec3(BLACK);
   if (hit.isEmpty || !hit.material->isDiffuse()) {
     return color;
@@ -236,107 +167,121 @@ glm::vec3 computeIndirectSoft(
   for (int i = 0; i < indirectSoftSamples; i++) {
     Material::Sample diffuseSample = hit.material->sampleDiffuse(-ray.direction, hit);
     Ray diffuseRay = Ray(diffuseSample.direction, hit.position + bias * diffuseSample.direction);
-    Hit diffuseHit = cast(diffuseRay, objects);
-    color += computeDirect(lights, objects, diffuseHit) *
+    Hit diffuseHit = cast(diffuseRay, scene.objects);
+    color += computeDirect(scene, diffuseHit) *
       diffuseSample.brdf /
       diffuseSample.pdf;
   }
   return hit.material->diffuse * color / float(indirectSoftSamples);
 }
 
-// TODO: Refactor to return color at pixel.
-void renderPhoton(
-  int x,
-  int y,
-  Image &image,
+glm::vec3 computeIndirectSpecular(
+  Scene &scene,
   const Ray &ray,
-  const std::vector<Light*> &lights,
-  const std::vector<Object*> &objects
+  const Hit &hit,
+  int bounces = 0
 ) {
-  Hit hit = cast(ray, objects);
+  float bias = 0.001f;
+  float bounceMax = 3;
+  // TODO: Iterate after moving beyond ideal dialectrics, right now there is only one sample to
+  // prevent useless iterations since each pure dialectric sample will be of the perfect path.
+  glm::vec3 color = glm::vec3(BLACK);
+  if (bounces > bounceMax || hit.isEmpty || hit.material->isDiffuse()) {
+    return color;
+  }
+  // Reflection.
+  Material::Sample reflectionSample = hit.material->sampleSpecular(-ray.direction, hit);
+  Ray reflectionRay = Ray(reflectionSample.direction, hit.position + bias * reflectionSample.direction);
+  Hit reflectionHit = cast(reflectionRay, scene.objects);
+  glm::vec3 reflectionColor =
+    computeIndirectSpecular(scene, reflectionRay, reflectionHit, bounces + 1) +
+    computeIndirectSoft(scene, reflectionRay, reflectionHit) +
+    computeDirect(scene, reflectionHit);
+  reflectionColor *= (reflectionSample.brdf / reflectionSample.pdf);
+  // Refraction.
+  Material::Sample refractionSample = hit.material->sampleRefractive(-ray.direction, hit);
+  glm::vec3 refractionColor = glm::vec3(BLACK);
+  if (refractionSample.direction != glm::vec3(0) /* TIR */) {
+    Ray refractionRay = Ray(refractionSample.direction, hit.position + bias * refractionSample.direction);
+    Hit refractionHit = cast(refractionRay, scene.objects);
+    refractionColor = 
+      computeIndirectSpecular(scene, refractionRay, refractionHit, bounces + 1) +
+      computeIndirectSoft(scene, refractionRay, refractionHit) +
+      computeDirect(scene, refractionHit);
+    refractionColor *= (refractionSample.brdf / refractionSample.pdf);
+  }
+  return reflectionColor + refractionColor;
+}
+
+// TODO: Refactor to return color at pixel.
+void renderPhoton(Scene &scene, const Ray &ray,int x, int y) {
+  Hit hit = cast(ray, scene.objects);
   glm::vec3 color = glm::vec3(BLACK);
   if (!hit.isEmpty) {
-    color = computeDirect(lights, objects, hit) +
-      computeIndirectSpecular(lights, objects, ray, hit) +
+    color = computeDirect(scene, hit) +
+      computeIndirectSpecular(scene, ray, hit) +
       computeIndirectCaustic(hit) +
-      computeIndirectSoft(lights, objects, ray, hit);
+      computeIndirectSoft(scene, ray, hit);
   }
-  image.setPixel(x, y, color);
+  scene.image.setPixel(x, y, color);
 }
 
-void renderPixel(
-  int x,
-  int y,
-  Image &image,
-  const Ray &ray,
-  const std::vector<Light*> &lights,
-  const std::vector<Object*> &objects
-) {
+void renderPixel(Scene &scene, const Ray &ray,int x, int y) {
   // TODO: Extract Renderer class.
-  if (image.render == "depth") {
-    renderDepth(x, y, image, ray, objects);
-  } else if (image.render == "hit") {
-    renderHit(x, y, image, ray, objects);
-  } else if (image.render == "normal") {
-    renderNormal(x, y, image, ray, objects);
-  } else if (image.render == "photon") {
-    renderPhoton(x, y, image, ray, lights, objects);
+  if (scene.image.render == "depth") {
+    renderDepth(scene, ray, x, y);
+  } else if (scene.image.render == "hit") {
+    renderHit(scene, ray, x, y);
+  } else if (scene.image.render == "normal") {
+    renderNormal(scene, ray, x, y);
+  } else if (scene.image.render == "photon") {
+    renderPhoton(scene, ray, x, y);
   }
 }
 
-void render(
-  Camera camera,
-  Image image,
-  const std::vector<Light*> &lights,
-  const std::vector<Object*> &objects
-) {
-  for (int x = 0; x < image.width; x++) {
-    for (int y = 0; y < image.height; y++) {
-      Ray ray = getRay(x, y, camera, image);
-      renderPixel(x, y, image, ray, lights, objects);
+void render(Scene &scene) {
+  for (int x = 0; x < scene.image.width; x++) {
+    for (int y = 0; y < scene.image.height; y++) {
+      Ray ray = getRay(scene, x, y);
+      renderPixel(scene, ray, x, y);
     }
   }
 }
 
-void postRender(Image image) {
+void postRender(Scene &scene) {
   // TODO: Extract Renderer class.
-  if (image.render == "depth") {
-    int size = image.height * image.width;
+  if (scene.image.render == "depth") {
+    int size = scene.image.height * scene.image.width;
     float min = FLT_MAX;
     float max = 0;
     for (int i = 0; i < size; i++) {
-      if (image.buffer[i] == -1) {
+      if (scene.image.buffer[i] == -1) {
         continue;
       }
-      if (min > image.buffer[i]) {
-        min = image.buffer[i];
+      if (min > scene.image.buffer[i]) {
+        min = scene.image.buffer[i];
       }
-      if (max < image.buffer[i]) {
-        max = image.buffer[i];
+      if (max < scene.image.buffer[i]) {
+        max = scene.image.buffer[i];
       }
     }
     for (int i = 0; i < size; i++) {
-      if (image.buffer[i] == -1) {
-        image.setPixel(i, glm::vec3(BLACK));
+      if (scene.image.buffer[i] == -1) {
+        scene.image.setPixel(i, glm::vec3(BLACK));
       } else {
-        float depth = (max - image.buffer[i]) / (max - min);
-        image.setPixel(i, glm::vec3(depth));
+        float depth = (max - scene.image.buffer[i]) / (max - min);
+        scene.image.setPixel(i, glm::vec3(depth));
       }
     }
   }
 }
 
-void Render(
-  Camera camera,
-  Image image,
-  const std::vector<Light*> &lights,
-  const std::vector<Object*> &objects
-) {
+void Render(Scene &scene) {
   int	startTime =  (int) time(NULL);
 
-  preRender(image, lights, objects);
-  render(camera, image, lights, objects);
-  postRender(image);
+  preRender(scene);
+  render(scene);
+  postRender(scene);
 
   int endTime = (int) time(NULL);
   int runTime = endTime - startTime;
