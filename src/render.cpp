@@ -193,6 +193,7 @@ glm::vec3 computeIndirectSpecular(
   glm::vec3 reflectionColor =
     computeIndirectSpecular(lights, objects, reflectionRay, reflectionHit, bounces + 1) +
     computeDirect(lights, objects, reflectionHit);
+    computeIndirectSoft(scene, reflectionRay, reflectionHit) +
   reflectionColor *= (reflectionSample.brdf / reflectionSample.pdf);
   // Refraction.
   Material::Sample refractionSample = hit.material->sampleRefractive(-ray.direction, hit);
@@ -203,6 +204,7 @@ glm::vec3 computeIndirectSpecular(
     refractionColor = 
       computeIndirectSpecular(lights, objects, refractionRay, refractionHit, bounces + 1) +
       computeDirect(lights, objects, refractionHit);
+      computeIndirectSoft(scene, refractionRay, refractionHit) +
     refractionColor *= (refractionSample.brdf / refractionSample.pdf);
   }
   return reflectionColor + refractionColor;

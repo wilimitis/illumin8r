@@ -5,22 +5,17 @@ using json = nlohmann::json;
 #include <iostream>
 #include <string>
 #include <vector>
-#include "src/camera.h"
-#include "src/image.h"
 #include "src/material/dielectric.h"
 #include "src/material/phong.h"
 #include "src/light/photonMap.h"
 #include "src/light/pointLight.h"
 #include "src/object/mesh.h"
 #include "src/object/sphere.h"
+#include "src/scene.h"
 #include "src/render.h"
 #include "src/window.h"
 
-Camera camera;
-Image image;
-std::vector<Light*> lights;
-std::vector<Material*> materials;
-std::vector<Object*> objects;
+Scene scene;
 
 glm::vec3 getVec3(json node) {
   return node.empty() ?
@@ -33,20 +28,20 @@ float getFloat(json node) {
 }
 
 void setupCamera(json node) {
-  camera.direction = getVec3(node["direction"]);
-  camera.fieldOfView = node["fieldOfView"];
-  camera.position = getVec3(node["position"]);
-  camera.up = getVec3(node["up"]);
+  scene.camera.direction = getVec3(node["direction"]);
+  scene.camera.fieldOfView = node["fieldOfView"];
+  scene.camera.position = getVec3(node["position"]);
+  scene.camera.up = getVec3(node["up"]);
 }
 
 void setupImage(json node) {
-  image.height = node["height"];
-  image.width = node["width"];
-  image.render = node["render"];
+  scene.image.height = node["height"];
+  scene.image.width = node["width"];
+  scene.image.render = node["render"];
   // TODO: Extract cleaner structure.
   PhotonMap::photonCount = node["photonCount"];
   PhotonMap::photonSearchDistanceSquared = node["photonSearchDistanceSquared"];
-  image.init();
+  scene.image.init();
 }
 
 void setupLights(json node) {
@@ -56,7 +51,7 @@ void setupLights(json node) {
       l->intensity = getVec3(light["intensity"]);
       l->position = getVec3(light["position"]);
       l->power = getVec3(light["power"]);
-      lights.push_back(l);
+      scene.lights.push_back(l);
     }
   }
 }
@@ -69,22 +64,22 @@ void setupMaterials(json node) {
       m->diffuse = getVec3(material["diffuse"]);
       m->specular = getVec3(material["specular"]);
       m->lobe = getFloat(material["lobe"]);
-      materials.push_back(m);
+      scene.materials.push_back(m);
     } else if (material["type"] == "dielectric") {
       Dielectric* m = new Dielectric();
       m->key = material["key"];
       m->specular = getVec3(material["specular"]);
       m->refractive = getVec3(material["refractive"]);
       m->refractiveIndex = getFloat(material["refractiveIndex"]);
-      materials.push_back(m);
+      scene.materials.push_back(m);
     }
   }
 }
 
 Material* find(std::string material) {
-  for (int i = 0; i < materials.size(); i++) {
-    if (materials.at(i)->key == material) {
-      return materials.at(i);
+  for (int i = 0; i < scene.materials.size(); i++) {
+    if (scene.materials.at(i)->key == material) {
+      return scene.materials.at(i);
     }
   }
   return NULL;
@@ -106,7 +101,7 @@ void setupObjects(json node) {
     o->translate(getVec3(object["translate"]));
     o->scale(getVec3(object["scale"]));
     o->rotate(rotate["angle"], getVec3(rotate["axis"]));
-    objects.push_back(o);
+    scene.objects.push_back(o);
   }
 }
 
@@ -128,7 +123,7 @@ void setup() {
 int main() {
   std::cout << "illumin8r" << std::endl;
   setup();
-  Render(camera, image, lights, objects);
+  Render(scene);
   Show();
   return 0;
 }

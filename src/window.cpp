@@ -8,12 +8,12 @@
 # else
 #  include <GL/glut.h>
 # endif
-#include "image.h"
+#include "scene.h"
 #include "window.h"
 
 #define ESC 27
 
-extern Image image;
+extern Scene scene;
 
 void glutKeyboard(unsigned char key, int x, int y) {
 	switch (ESC) {
@@ -25,11 +25,11 @@ void glutKeyboard(unsigned char key, int x, int y) {
 
 void glutDisplay() {
 	glDrawPixels(
-    image.width,
-    image.height,
+    scene.image.width,
+    scene.image.height,
     GL_RGB,
     GL_UNSIGNED_BYTE,
-    image.pixels
+    scene.image.pixels
   );
 	glutSwapBuffers();
 }
@@ -41,10 +41,10 @@ void Show() {
 	glutInit(&argc,&argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowPosition(
-		(glutGet(GLUT_SCREEN_WIDTH) - image.width) / 2,
-		(glutGet(GLUT_SCREEN_HEIGHT) - image.height) /2
+		(glutGet(GLUT_SCREEN_WIDTH) - scene.image.width) / 2,
+		(glutGet(GLUT_SCREEN_HEIGHT) - scene.image.height) /2
 	);
-	glutInitWindowSize(image.width, image.height);
+	glutInitWindowSize(scene.image.width, scene.image.height);
 	glutCreateWindow("illumin8r");
   glutKeyboardFunc(glutKeyboard);
 	glutDisplayFunc(glutDisplay);
