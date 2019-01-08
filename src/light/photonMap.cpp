@@ -187,5 +187,5 @@ void PhotonMap::init(
   std::cout << "photon emission complete: " << photons.size() << " / " << photonCount << std::endl;
 
   photonNode = new PhotonNode(photons);
-  std::cout << "photon map complete: " << std::endl;
+  std::cout << "photon map complete" << std::endl;
 }
