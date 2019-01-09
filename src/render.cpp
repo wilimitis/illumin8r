@@ -146,9 +146,15 @@ glm::vec3 computeDirect(Scene &scene, const Hit &hit) {
 }
 
 glm::vec3 computeIndirectCaustic(const Hit &hit) {
+  if (hit.isEmpty) {
+    return glm::vec3(BLACK);
+  }
   std::vector<PhotonMap::Photon*> nearest;
   causticPhotonMap.getNearest(nearest, causticPhotonMap.photonNode, hit.position);
   glm::vec3 power = glm::vec3(0);
+  if (nearest.size() < 5) {
+    return power;
+  }
   for (int i = 0; i < nearest.size(); i++) {
     power += (nearest.at(i)->power) / float(PhotonMap::photonCount);
   }
@@ -156,10 +162,10 @@ glm::vec3 computeIndirectCaustic(const Hit &hit) {
   return power;
 }
 
-// TODO: Recurse bounded by bounces.
 glm::vec3 computeIndirectSoft(Scene &scene, const Ray &ray, const Hit &hit) {
+  // TODO: Recurse bounded by bounces.
   float bias = 0.001f;
-  int indirectSoftSamples = 2;
+  int indirectSoftSamples = 1;
   glm::vec3 color = glm::vec3(BLACK);
   if (hit.isEmpty || !hit.material->isDiffuse()) {
     return color;
@@ -169,7 +175,8 @@ glm::vec3 computeIndirectSoft(Scene &scene, const Ray &ray, const Hit &hit) {
     Ray diffuseRay = Ray(diffuseSample.direction, hit.position + bias * diffuseSample.direction);
     Hit diffuseHit = cast(diffuseRay, scene.objects);
     color += computeDirect(scene, diffuseHit) *
-      diffuseSample.brdf /
+      diffuseSample.brdf *
+      abs(glm::dot(diffuseHit.normal, diffuseSample.direction)) /
       diffuseSample.pdf;
   }
   return hit.material->diffuse * color / float(indirectSoftSamples);
@@ -182,34 +189,43 @@ glm::vec3 computeIndirectSpecular(
   int bounces = 0
 ) {
   float bias = 0.001f;
-  float bounceMax = 3;
+  float bounceMax = 2;
   // TODO: Iterate after moving beyond ideal dialectrics, right now there is only one sample to
   // prevent useless iterations since each pure dialectric sample will be of the perfect path.
   glm::vec3 color = glm::vec3(BLACK);
   if (bounces > bounceMax || hit.isEmpty || hit.material->isDiffuse()) {
     return color;
   }
+
   // Reflection.
   Material::Sample reflectionSample = hit.material->sampleSpecular(-ray.direction, hit);
   Ray reflectionRay = Ray(reflectionSample.direction, hit.position + bias * reflectionSample.direction);
   Hit reflectionHit = cast(reflectionRay, scene.objects);
   glm::vec3 reflectionColor =
+    computeDirect(scene, reflectionHit) +
     computeIndirectSpecular(scene, reflectionRay, reflectionHit, bounces + 1) +
-    computeIndirectSoft(scene, reflectionRay, reflectionHit) +
-    computeDirect(scene, reflectionHit);
-  reflectionColor *= (reflectionSample.brdf / reflectionSample.pdf);
+    computeIndirectCaustic(reflectionHit) +
+    computeIndirectSoft(scene, reflectionRay, reflectionHit);
+  reflectionColor *= reflectionSample.brdf;
+  reflectionColor *= abs(glm::dot(reflectionHit.normal, reflectionSample.direction));
+  reflectionColor /= reflectionSample.pdf;
+
   // Refraction.
   Material::Sample refractionSample = hit.material->sampleRefractive(-ray.direction, hit);
   glm::vec3 refractionColor = glm::vec3(BLACK);
   if (refractionSample.direction != glm::vec3(0) /* TIR */) {
     Ray refractionRay = Ray(refractionSample.direction, hit.position + bias * refractionSample.direction);
     Hit refractionHit = cast(refractionRay, scene.objects);
-    refractionColor = 
+    refractionColor =
+      computeDirect(scene, refractionHit) +
       computeIndirectSpecular(scene, refractionRay, refractionHit, bounces + 1) +
-      computeIndirectSoft(scene, refractionRay, refractionHit) +
-      computeDirect(scene, refractionHit);
-    refractionColor *= (refractionSample.brdf / refractionSample.pdf);
+      computeIndirectCaustic(refractionHit) +
+      computeIndirectSoft(scene, refractionRay, refractionHit);
+    refractionColor *= refractionSample.brdf;
+    refractionColor *= abs(glm::dot(refractionHit.normal, refractionSample.direction));
+    refractionColor /= refractionSample.pdf;
   }
+
   return reflectionColor + refractionColor;
 }
 
@@ -218,7 +234,8 @@ void renderPhoton(Scene &scene, const Ray &ray,int x, int y) {
   Hit hit = cast(ray, scene.objects);
   glm::vec3 color = glm::vec3(BLACK);
   if (!hit.isEmpty) {
-    color = computeDirect(scene, hit) +
+    color = 
+      computeDirect(scene, hit) +
       computeIndirectSpecular(scene, ray, hit) +
       computeIndirectCaustic(hit) +
       computeIndirectSoft(scene, ray, hit);

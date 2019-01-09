@@ -23,9 +23,9 @@ class Material {
 
     glm::vec3 sampleWorld(const glm::vec3 &direction, const glm::vec3 &up) const;
     
-    virtual Sample sampleDiffuse(const glm::vec3 &ki, const Hit &hit) const = 0;
-    virtual Sample sampleSpecular(const glm::vec3 &ki, const Hit &hit) const = 0;
-    virtual Sample sampleRefractive(const glm::vec3 &ki, const Hit &hit) const = 0;
+    virtual Sample sampleDiffuse(const glm::vec3 &wo, const Hit &hit) const = 0;
+    virtual Sample sampleSpecular(const glm::vec3 &wo, const Hit &hit) const = 0;
+    virtual Sample sampleRefractive(const glm::vec3 &wo, const Hit &hit) const = 0;
     
     bool isDiffuse();
 };

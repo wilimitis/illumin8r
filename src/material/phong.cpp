@@ -3,7 +3,7 @@
 
 // http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf
 
-Material::Sample Phong::sampleDiffuse(const glm::vec3 &ki, const Hit &hit) const {
+Material::Sample Phong::sampleDiffuse(const glm::vec3 &wo, const Hit &hit) const {
   Material::Sample sample;
   float r1 = glm::linearRand(0.0f, 1.0f);
   float r2 = glm::linearRand(0.0f, 1.0f);
@@ -15,13 +15,13 @@ Material::Sample Phong::sampleDiffuse(const glm::vec3 &ki, const Hit &hit) const
       sqrtf(r2));
   sample.direction = sampleWorld(direction, hit.normal);
   sample.brdf = diffuse * float(M_1_PI);
-  sample.pdf = glm::dot(ki, hit.normal) * float(M_1_PI);
+  sample.pdf = glm::dot(wo, hit.normal) * float(M_1_PI);
   return sample;
 }
 
-Material::Sample Phong::sampleSpecular(const glm::vec3 &ki, const Hit &hit) const {
+Material::Sample Phong::sampleSpecular(const glm::vec3 &wo, const Hit &hit) const {
   Material::Sample sample;
-  glm::vec3 reflection = glm::reflect(-ki, hit.normal);
+  glm::vec3 reflection = glm::reflect(-wo, hit.normal);
   float r1 = glm::linearRand(0.0f, 1.0f);
   float r2 = glm::linearRand(0.0f, 1.0f);
   float phi = 2.0f * float(M_PI) * r1;
@@ -45,6 +45,6 @@ Material::Sample Phong::sampleSpecular(const glm::vec3 &ki, const Hit &hit) cons
   return sample;
 }
 
-Material::Sample Phong::sampleRefractive(const glm::vec3 &ki, const Hit &hit) const {
+Material::Sample Phong::sampleRefractive(const glm::vec3 &wo, const Hit &hit) const {
   throw std::logic_error("refractive not supported for phong");
 }
