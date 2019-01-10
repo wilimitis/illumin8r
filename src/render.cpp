@@ -2,6 +2,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/vector_query.hpp>
 #include <iostream>
+#include <thread>
 #include <time.h>
 #include "light/photonMap.h"
 #include "ray.h"
@@ -260,9 +261,9 @@ glm::vec3 renderPixel(Scene &scene, const Ray &ray, int x, int y) {
   }
 }
 
-void render(Scene &scene) {
-  for (int x = 0; x < scene.image.width; x++) {
-    for (int y = 0; y < scene.image.height; y++) {
+void render(Scene &scene, int xBegin, int xEnd, int yBegin, int yEnd) {
+  for (int x = xBegin; x < xEnd; x++) {
+    for (int y = yBegin; y < yEnd; y++) {
       glm::vec3 color = glm::vec3(BLACK);
       for (int a1 = 0; a1 < scene.image.pixelSamples; a1++) {
         for (int a2 = 0; a2 < scene.image.pixelSamples; a2++) {
@@ -308,7 +309,26 @@ void Render(Scene &scene) {
   int	startTime =  (int) time(NULL);
 
   preRender(scene);
-  render(scene);
+  
+  int threadCount = 4;
+  int threadCountSqrt = sqrt(threadCount);
+  std::thread threads[threadCount];
+  for (int i = 0; i < threadCountSqrt; i++) {
+    for (int j = 0; j < threadCountSqrt; j++) {
+      threads[i * threadCountSqrt + j] = std::thread(
+        render,
+        std::ref(scene),
+        (scene.image.width / threadCountSqrt) * i,
+        (scene.image.width / threadCountSqrt) * (i + 1),
+        (scene.image.height / threadCountSqrt) * j,
+        (scene.image.height / threadCountSqrt) * (j + 1)
+      );
+    }
+  }
+  for (int i = 0; i < threadCount; i++) {
+    threads[i].join();
+  }
+
   postRender(scene);
 
   int endTime = (int) time(NULL);
