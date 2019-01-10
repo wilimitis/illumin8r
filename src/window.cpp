@@ -8,6 +8,7 @@
 # else
 #  include <GL/glut.h>
 # endif
+#include "render.h"
 #include "scene.h"
 #include "window.h"
 
@@ -16,10 +17,16 @@
 extern Scene scene;
 
 void glutKeyboard(unsigned char key, int x, int y) {
-	switch (ESC) {
-    case 27:
+	switch (key) {
+    case ESC:
       exit(0);
       break;
+		case ' ':
+			Render(scene);
+			break;
+		default:
+			// Do nothing.
+			break;
   }
 }
 
