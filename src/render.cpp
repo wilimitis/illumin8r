@@ -92,19 +92,20 @@ void preRender(const Scene &scene) {
   }
 }
 
-void renderDepth(Scene &scene, const Ray &ray, int x, int y) {
+glm::vec3 renderDepth(Scene &scene, const Ray &ray, int x, int y) {
   // TODO: Move into pre render.
   Hit hit = cast(ray, scene.objects);
   scene.image.setBuffer(x, y, hit.isEmpty ? -1 : hit.distance);
+  return glm::vec3(BLACK);
 }
 
-void renderHit(Scene &scene, const Ray &ray, int x, int y) {
+glm::vec3 renderHit(Scene &scene, const Ray &ray, int x, int y) {
   Hit hit = cast(ray, scene.objects);
   glm::vec3 color = glm::vec3(hit.isEmpty ? BLACK : WHITE);
-  scene.image.setPixel(x, y, color);
+  return color;
 }
 
-void renderNormal(Scene &scene, const Ray &ray, int x, int y) {
+glm::vec3 renderNormal(Scene &scene, const Ray &ray, int x, int y) {
   Hit hit = cast(ray, scene.objects);
   glm::vec3 color;
   if (hit.isEmpty) {
@@ -117,7 +118,7 @@ void renderNormal(Scene &scene, const Ray &ray, int x, int y) {
       hit.normal.z
     );
   }
-  scene.image.setPixel(x, y, color);
+  return color;
 }
 
 glm::vec3 computeDirect(Scene &scene, const Ray &ray, const Hit &hit) {
@@ -233,7 +234,7 @@ glm::vec3 computeIndirectSpecular(
 }
 
 // TODO: Refactor to return color at pixel.
-void renderPhoton(Scene &scene, const Ray &ray,int x, int y) {
+glm::vec3 renderPhoton(Scene &scene, const Ray &ray,int x, int y) {
   Hit hit = cast(ray, scene.objects);
   glm::vec3 color = glm::vec3(BLACK);
   if (!hit.isEmpty) {
@@ -243,19 +244,19 @@ void renderPhoton(Scene &scene, const Ray &ray,int x, int y) {
       computeIndirectCaustic(hit) +
       computeIndirectSoft(scene, ray, hit);
   }
-  scene.image.setPixel(x, y, color);
+  return color; 
 }
 
-void renderPixel(Scene &scene, const Ray &ray,int x, int y) {
+glm::vec3 renderPixel(Scene &scene, const Ray &ray,int x, int y) {
   // TODO: Extract Renderer class.
   if (scene.image.type == "depth") {
-    renderDepth(scene, ray, x, y);
+    return renderDepth(scene, ray, x, y);
   } else if (scene.image.type == "hit") {
-    renderHit(scene, ray, x, y);
+    return renderHit(scene, ray, x, y);
   } else if (scene.image.type == "normal") {
-    renderNormal(scene, ray, x, y);
+    return renderNormal(scene, ray, x, y);
   } else if (scene.image.type == "photon") {
-    renderPhoton(scene, ray, x, y);
+    return renderPhoton(scene, ray, x, y);
   }
 }
 
@@ -263,7 +264,8 @@ void render(Scene &scene) {
   for (int x = 0; x < scene.image.width; x++) {
     for (int y = 0; y < scene.image.height; y++) {
       Ray ray = getRay(scene, x, y);
-      renderPixel(scene, ray, x, y);
+      glm::vec3 color = renderPixel(scene, ray, x, y);
+      scene.image.setPixel(x, y, color);
     }
   }
 }
