@@ -8,7 +8,7 @@ float map(float input, float inputStart, float inputEnd, float outputStart, floa
 }
 
 float computeFresnel(const glm::vec3 &normal, const glm::vec3 &wi, float nt, bool isInside) {
-  http://www.pbr-book.org/3ed-2018/Reflection_Models/Specular_Reflection_and_Transmission.html#FrDielectric
+  // http://www.pbr-book.org/3ed-2018/Reflection_Models/Specular_Reflection_and_Transmission.html#FrDielectric
   float ci = glm::dot(normal, wi);
   float ni = 1.0f;
   if (isInside) {
