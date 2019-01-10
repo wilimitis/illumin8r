@@ -3,6 +3,15 @@
 
 // http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf
 
+glm::vec3 Phong::brdf(const glm::vec3 &wo, const glm::vec3 &wi, const Hit &hit) const {
+  glm::vec3 d = diffuse * float(M_1_PI);
+  glm::vec3 reflection = glm::reflect(-wo, hit.normal);
+  glm::vec3 s = specular * (lobe + 2.0f) *
+    powf(glm::dot(wo, reflection), lobe) /
+    (2.0f * float(M_PI));
+  return d + s;
+}
+
 Material::Sample Phong::sampleDiffuse(const glm::vec3 &wo, const Hit &hit) const {
   Material::Sample sample;
   float r1 = glm::linearRand(0.0f, 1.0f);

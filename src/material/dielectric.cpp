@@ -2,6 +2,10 @@
 #include "dielectric.h"
 #include "../utils.h"
 
+glm::vec3 Dielectric::brdf(const glm::vec3 &wo, const glm::vec3 &wi, const Hit &hit) const {
+  throw std::logic_error("brdf not supported for dielectrics");
+}
+
 Material::Sample Dielectric::sampleDiffuse(const glm::vec3 &wo, const Hit &hit) const {
   throw std::logic_error("diffuse not supported for dielectrics");
 }

@@ -120,7 +120,7 @@ void renderNormal(Scene &scene, const Ray &ray, int x, int y) {
   scene.image.setPixel(x, y, color);
 }
 
-glm::vec3 computeDirect(Scene &scene, const Hit &hit) {
+glm::vec3 computeDirect(Scene &scene, const Ray &ray, const Hit &hit) {
   // TODO: Iterate after moving beyond point lights, right now there is only one sample to
   // prevent useless iterations since each sample will be the path to the point light.
   float bias = 0.001f;
@@ -129,18 +129,23 @@ glm::vec3 computeDirect(Scene &scene, const Hit &hit) {
     return color;
   }
   for (int i = 0; i < scene.lights.size(); i++) {
-    // Shadow.
-    glm::vec3 lightDirection = glm::normalize(scene.lights.at(i)->position - hit.position);
-    Hit occlusion = cast(Ray(lightDirection, hit.position + bias * lightDirection), scene.objects);
-    float lightDistance = glm::distance(scene.lights.at(i)->position, hit.position);
-    float visibility = !occlusion.isEmpty && occlusion.distance <= lightDistance ? 0 : 1;
-    
-    // TODO: Extract method to compute direct light sample so that e.g. Phong can have its
-    // specular component represented properly and e.g. Dielectrics, etc. can do as they please.
-    color += scene.lights.at(i)->intensity *
-      hit.material->diffuse * 
-      abs(glm::dot(lightDirection, hit.normal)) *
-      visibility;
+    for (int j = 0; j < scene.image.directSamples; j++) {
+      glm::vec3 lightSamplePosition = scene.lights.at(i)->sampleDirection().position;
+      glm::vec3 lightVector = lightSamplePosition - hit.position;
+      glm::vec3 lightDirection = glm::normalize(lightVector);
+      float lightDistance = glm::distance(lightSamplePosition, hit.position);
+      Hit occlusion = cast(Ray(lightDirection, hit.position + bias * lightDirection), scene.objects);
+      if (occlusion.isEmpty || occlusion.distance > lightDistance) {
+        // TODO: Extract method to compute direct light sample so that e.g. Phong can have its
+        // specular component represented properly and e.g. Dielectrics, etc. can do as they please.
+        color +=
+          hit.material->brdf(-ray.direction, lightDirection, hit) *
+          scene.lights.at(i)->intensity *
+          glm::dot(lightVector, hit.normal);
+          // TODO: Implement dot(lightVector, -lightNormal) for non-spherical luminaires.
+          // TODO: This blacks out the image. powf(lightDistance, 0.0f);
+      }
+    }
   }
   return color / float(scene.image.directSamples);
 }
@@ -152,7 +157,7 @@ glm::vec3 computeIndirectCaustic(const Hit &hit) {
   std::vector<PhotonMap::Photon*> nearest;
   causticPhotonMap.getNearest(nearest, causticPhotonMap.photonNode, hit.position);
   glm::vec3 power = glm::vec3(0);
-  if (nearest.size() < 5) {
+  if (nearest.size() < PhotonMap::photonSearchCountMinimum) {
     return power;
   }
   for (int i = 0; i < nearest.size(); i++) {
@@ -173,7 +178,7 @@ glm::vec3 computeIndirectSoft(Scene &scene, const Ray &ray, const Hit &hit) {
     Material::Sample diffuseSample = hit.material->sampleDiffuse(-ray.direction, hit);
     Ray diffuseRay = Ray(diffuseSample.direction, hit.position + bias * diffuseSample.direction);
     Hit diffuseHit = cast(diffuseRay, scene.objects);
-    color += computeDirect(scene, diffuseHit) *
+    color += computeDirect(scene, diffuseRay, diffuseHit) *
       diffuseSample.brdf *
       abs(glm::dot(diffuseHit.normal, diffuseSample.direction)) /
       diffuseSample.pdf;
@@ -200,12 +205,12 @@ glm::vec3 computeIndirectSpecular(
   Ray reflectionRay = Ray(reflectionSample.direction, hit.position + bias * reflectionSample.direction);
   Hit reflectionHit = cast(reflectionRay, scene.objects);
   glm::vec3 reflectionColor =
-    computeDirect(scene, reflectionHit) +
+    computeDirect(scene, reflectionRay, reflectionHit) +
     computeIndirectSpecular(scene, reflectionRay, reflectionHit, bounces + 1) +
     computeIndirectCaustic(reflectionHit) +
     computeIndirectSoft(scene, reflectionRay, reflectionHit);
   reflectionColor *= reflectionSample.brdf;
-  reflectionColor *= abs(glm::dot(reflectionHit.normal, reflectionSample.direction));
+  reflectionColor *= abs(glm::dot(hit.normal, reflectionSample.direction));
   reflectionColor /= reflectionSample.pdf;
 
   // Refraction.
@@ -215,12 +220,12 @@ glm::vec3 computeIndirectSpecular(
     Ray refractionRay = Ray(refractionSample.direction, hit.position + bias * refractionSample.direction);
     Hit refractionHit = cast(refractionRay, scene.objects);
     refractionColor =
-      computeDirect(scene, refractionHit) +
+      computeDirect(scene, refractionRay, refractionHit) +
       computeIndirectSpecular(scene, refractionRay, refractionHit, bounces + 1) +
       computeIndirectCaustic(refractionHit) +
       computeIndirectSoft(scene, refractionRay, refractionHit);
     refractionColor *= refractionSample.brdf;
-    refractionColor *= abs(glm::dot(refractionHit.normal, refractionSample.direction));
+    refractionColor *= abs(glm::dot(hit.normal, refractionSample.direction));
     refractionColor /= refractionSample.pdf;
   }
 
@@ -233,7 +238,7 @@ void renderPhoton(Scene &scene, const Ray &ray,int x, int y) {
   glm::vec3 color = glm::vec3(BLACK);
   if (!hit.isEmpty) {
     color = 
-      computeDirect(scene, hit) +
+      computeDirect(scene, ray, hit) +
       computeIndirectSpecular(scene, ray, hit) +
       computeIndirectCaustic(hit) +
       computeIndirectSoft(scene, ray, hit);
