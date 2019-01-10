@@ -13,7 +13,7 @@
 
 PhotonMap causticPhotonMap, globalPhotonMap;
 
-Ray getRay(const Scene &scene, int x, int y) {
+Ray getRay(const Scene &scene, int x, int y, glm::vec2 o) {
   // Compute aspect ratio.
   // Shirley 7.5
   float arw = scene.image.width > scene.image.height
@@ -35,8 +35,8 @@ Ray getRay(const Scene &scene, int x, int y) {
   // Compute screen coordinates in camera space.
   // Shirley 10.2
   glm::vec3 sc = glm::vec3(
-    (left + (right - left) * ((x + 0.5) / scene.image.width)) * arw * tf,
-    (bottom + (top - bottom) * ((y + 0.5) / scene.image.height)) * arh * tf,
+    (left + (right - left) * ((x + 0.5 + o.x) / scene.image.width)) * arw * tf,
+    (bottom + (top - bottom) * ((y + 0.5 + o.y) / scene.image.height)) * arh * tf,
     -1
   );
 
@@ -234,7 +234,7 @@ glm::vec3 computeIndirectSpecular(
 }
 
 // TODO: Refactor to return color at pixel.
-glm::vec3 renderPhoton(Scene &scene, const Ray &ray,int x, int y) {
+glm::vec3 renderPhoton(Scene &scene, const Ray &ray, int x, int y) {
   Hit hit = cast(ray, scene.objects);
   glm::vec3 color = glm::vec3(BLACK);
   if (!hit.isEmpty) {
@@ -247,7 +247,7 @@ glm::vec3 renderPhoton(Scene &scene, const Ray &ray,int x, int y) {
   return color; 
 }
 
-glm::vec3 renderPixel(Scene &scene, const Ray &ray,int x, int y) {
+glm::vec3 renderPixel(Scene &scene, const Ray &ray, int x, int y) {
   // TODO: Extract Renderer class.
   if (scene.image.type == "depth") {
     return renderDepth(scene, ray, x, y);
@@ -263,9 +263,15 @@ glm::vec3 renderPixel(Scene &scene, const Ray &ray,int x, int y) {
 void render(Scene &scene) {
   for (int x = 0; x < scene.image.width; x++) {
     for (int y = 0; y < scene.image.height; y++) {
-      Ray ray = getRay(scene, x, y);
-      glm::vec3 color = renderPixel(scene, ray, x, y);
-      scene.image.setPixel(x, y, color);
+      glm::vec3 color = glm::vec3(BLACK);
+      for (int a1 = 0; a1 < scene.image.pixelSamples; a1++) {
+        for (int a2 = 0; a2 < scene.image.pixelSamples; a2++) {
+          glm::vec2 o = glm::vec2(a1, a2) / float(scene.image.pixelSamples) - 0.5f;
+          Ray ray = getRay(scene, x, y, o);
+          color += renderPixel(scene, ray, x, y);
+        }
+      }
+      scene.image.setPixel(x, y, color / float(scene.image.pixelSamples * scene.image.pixelSamples));
     }
   }
 }
