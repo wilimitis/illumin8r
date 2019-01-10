@@ -7,6 +7,7 @@
 #include "photonMap.h"
 
 int PhotonMap::photonCount = 100;
+int PhotonMap::photonSearchCountMinimum = 4;
 float PhotonMap::photonSearchDistanceSquared = 4;
 
 void PhotonMap::emitPhoton(
@@ -60,7 +61,7 @@ void PhotonMap::emitPhoton(
   } else if (random < Pd + Ps) {
     requiresSpecularHit = false;
     Material::Sample sample = hit.material->sampleSpecular(-ray.direction, hit);
-    if (glm::dot(hit.normal, sample.direction) < 0) {
+    if (glm::dot(hit.normal, sample.direction) <= 0) {
       return;
     }
     photon->power = photon->power *

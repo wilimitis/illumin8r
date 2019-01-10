@@ -9,6 +9,7 @@ using json = nlohmann::json;
 #include "src/material/phong.h"
 #include "src/light/photonMap.h"
 #include "src/light/pointLight.h"
+#include "src/light/sphereLight.h"
 #include "src/object/mesh.h"
 #include "src/object/sphere.h"
 #include "src/scene.h"
@@ -37,11 +38,16 @@ void setupCamera(json node) {
 void setupImage(json node) {
   scene.image.height = node["height"];
   scene.image.width = node["width"];
-  scene.image.render = node["render"];
+  scene.image.type = node["type"];
+  scene.image.pixelSamples = node["pixelSamples"];
+  scene.image.directSamples = node["directSamples"];
+  scene.image.indirectSoftSamples = node["indirectSoftSamples"];
+  scene.image.indirectSpecularBounces = node["indirectSpecularBounces"];
+  scene.image.init();
+
   // TODO: Extract cleaner structure.
   PhotonMap::photonCount = node["photonCount"];
   PhotonMap::photonSearchDistanceSquared = node["photonSearchDistanceSquared"];
-  scene.image.init();
 }
 
 void setupLights(json node) {
@@ -51,6 +57,13 @@ void setupLights(json node) {
       l->intensity = getVec3(light["intensity"]);
       l->position = getVec3(light["position"]);
       l->power = getVec3(light["power"]);
+      scene.lights.push_back(l);
+    } else if (light["type"] == "sphere") {
+      SphereLight* l = new SphereLight();
+      l->intensity = getVec3(light["intensity"]);
+      l->position = getVec3(light["position"]);
+      l->power = getVec3(light["power"]);
+      l->radius = light["radius"];
       scene.lights.push_back(l);
     }
   }

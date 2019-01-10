@@ -30,6 +30,7 @@ class PhotonMap {
       bool requiresSpecularHit);
 
     static int photonCount;
+    static int photonSearchCountMinimum;
     static float photonSearchDistanceSquared;
     
     static void getNearest(

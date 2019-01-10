@@ -17,7 +17,12 @@ class Image {
     int width;
     float* buffer;
     Color* pixels;
-    std::string render;
+    std::string type;
+
+    int pixelSamples;
+    int directSamples;
+    int indirectSoftSamples;
+    int indirectSpecularBounces;
 
     void init();
     void setBuffer(int x, int y, float value);

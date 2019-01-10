@@ -86,14 +86,14 @@ Hit cast(const Ray &ray, const std::vector<Object*> &objects) {
 }
 
 void preRender(const Scene &scene) {
-  if (scene.image.render == "photon") {
+  if (scene.image.type == "photon") {
     causticPhotonMap.init(scene.lights, scene.objects, true /* requiresSpecularHit */);
     // globalPhotonMap.init(lights, objects, false /* requiresSpecularHit */);
   }
 }
 
-// TODO: Move into pre render.
 void renderDepth(Scene &scene, const Ray &ray, int x, int y) {
+  // TODO: Move into pre render.
   Hit hit = cast(ray, scene.objects);
   scene.image.setBuffer(x, y, hit.isEmpty ? -1 : hit.distance);
 }
@@ -142,7 +142,7 @@ glm::vec3 computeDirect(Scene &scene, const Hit &hit) {
       abs(glm::dot(lightDirection, hit.normal)) *
       visibility;
   }
-  return color;
+  return color / float(scene.image.directSamples);
 }
 
 glm::vec3 computeIndirectCaustic(const Hit &hit) {
@@ -165,12 +165,11 @@ glm::vec3 computeIndirectCaustic(const Hit &hit) {
 glm::vec3 computeIndirectSoft(Scene &scene, const Ray &ray, const Hit &hit) {
   // TODO: Recurse bounded by bounces.
   float bias = 0.001f;
-  int indirectSoftSamples = 1;
   glm::vec3 color = glm::vec3(BLACK);
-  if (hit.isEmpty || !hit.material->isDiffuse()) {
+  if (scene.image.indirectSoftSamples == 0 || hit.isEmpty || !hit.material->isDiffuse()) {
     return color;
   }
-  for (int i = 0; i < indirectSoftSamples; i++) {
+  for (int i = 0; i < scene.image.indirectSoftSamples; i++) {
     Material::Sample diffuseSample = hit.material->sampleDiffuse(-ray.direction, hit);
     Ray diffuseRay = Ray(diffuseSample.direction, hit.position + bias * diffuseSample.direction);
     Hit diffuseHit = cast(diffuseRay, scene.objects);
@@ -179,7 +178,7 @@ glm::vec3 computeIndirectSoft(Scene &scene, const Ray &ray, const Hit &hit) {
       abs(glm::dot(diffuseHit.normal, diffuseSample.direction)) /
       diffuseSample.pdf;
   }
-  return hit.material->diffuse * color / float(indirectSoftSamples);
+  return hit.material->diffuse * color / float(scene.image.indirectSoftSamples);
 }
 
 glm::vec3 computeIndirectSpecular(
@@ -189,11 +188,10 @@ glm::vec3 computeIndirectSpecular(
   int bounces = 0
 ) {
   float bias = 0.001f;
-  float bounceMax = 2;
   // TODO: Iterate after moving beyond ideal dialectrics, right now there is only one sample to
   // prevent useless iterations since each pure dialectric sample will be of the perfect path.
   glm::vec3 color = glm::vec3(BLACK);
-  if (bounces > bounceMax || hit.isEmpty || hit.material->isDiffuse()) {
+  if (bounces > scene.image.indirectSpecularBounces || hit.isEmpty || hit.material->isDiffuse()) {
     return color;
   }
 
@@ -245,13 +243,13 @@ void renderPhoton(Scene &scene, const Ray &ray,int x, int y) {
 
 void renderPixel(Scene &scene, const Ray &ray,int x, int y) {
   // TODO: Extract Renderer class.
-  if (scene.image.render == "depth") {
+  if (scene.image.type == "depth") {
     renderDepth(scene, ray, x, y);
-  } else if (scene.image.render == "hit") {
+  } else if (scene.image.type == "hit") {
     renderHit(scene, ray, x, y);
-  } else if (scene.image.render == "normal") {
+  } else if (scene.image.type == "normal") {
     renderNormal(scene, ray, x, y);
-  } else if (scene.image.render == "photon") {
+  } else if (scene.image.type == "photon") {
     renderPhoton(scene, ray, x, y);
   }
 }
@@ -267,7 +265,7 @@ void render(Scene &scene) {
 
 void postRender(Scene &scene) {
   // TODO: Extract Renderer class.
-  if (scene.image.render == "depth") {
+  if (scene.image.type == "depth") {
     int size = scene.image.height * scene.image.width;
     float min = FLT_MAX;
     float max = 0;
