@@ -129,10 +129,21 @@ void Mesh::init(const char* file) {
 					attrib.vertices[vertexCount * index.vertex_index],
 					attrib.vertices[vertexCount * index.vertex_index + 1],
 					attrib.vertices[vertexCount * index.vertex_index + 2]);
-				triangle->normals[vertexIndex] = glm::vec3(
+				if (attrib.normals.size() != 0) {
+					triangle->normals[vertexIndex] = glm::vec3(
 					attrib.normals[vertexCount * index.normal_index],
 					attrib.normals[vertexCount * index.normal_index + 1],
 					attrib.normals[vertexCount * index.normal_index + 2]);
+				}
+			}
+			if (attrib.normals.size() == 0) {
+				glm::vec3 normal = glm::normalize(glm::cross(
+					triangle->vertices[0] - triangle->vertices[1],
+					triangle->vertices[0] - triangle->vertices[2]
+				));
+				for (int i = 0; i < vertexCount; i++) {
+					triangle->normals[i] = normal;
+				}
 			}
 			objects.push_back(triangle);
 			vertexIndexOffset += vertexCount;
