@@ -47,6 +47,7 @@ void setupImage(json node) {
 
   // TODO: Extract cleaner structure.
   PhotonMap::photonCount = node["photonCount"];
+  PhotonMap::photonSearchCountMinimum = node["photonSearchCountMinimum"];
   PhotonMap::photonSearchDistanceSquared = node["photonSearchDistanceSquared"];
 }
 
