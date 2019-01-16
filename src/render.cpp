@@ -123,11 +123,9 @@ glm::vec3 renderNormal(Scene &scene, const Ray &ray, int x, int y) {
 }
 
 glm::vec3 computeDirect(Scene &scene, const Ray &ray, const Hit &hit) {
-  // TODO: Iterate after moving beyond point lights, right now there is only one sample to
-  // prevent useless iterations since each sample will be the path to the point light.
   float bias = 0.001f;
   glm::vec3 color = glm::vec3(BLACK);
-  if (hit.isEmpty || !hit.material->isDiffuse()) {
+  if (hit.isEmpty) {
     return color;
   }
   for (int i = 0; i < scene.lights.size(); i++) {
@@ -143,12 +141,13 @@ glm::vec3 computeDirect(Scene &scene, const Ray &ray, const Hit &hit) {
         color +=
           hit.material->brdf(-ray.direction, lightDirection, hit) *
           scene.lights.at(i)->intensity *
-          glm::dot(lightVector, hit.normal);
+          glm::max(0.0f, glm::dot(lightVector, hit.normal));
           // TODO: Implement dot(lightVector, -lightNormal) for non-spherical luminaires.
           // TODO: This blacks out the image. powf(lightDistance, 0.0f);
       }
     }
   }
+  // assert(color.x + color.y + color.z >= 0.0f);
   return color / float(scene.image.directSamples);
 }
 

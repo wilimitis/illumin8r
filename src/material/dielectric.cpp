@@ -3,7 +3,8 @@
 #include "../utils.h"
 
 glm::vec3 Dielectric::brdf(const glm::vec3 &wo, const glm::vec3 &wi, const Hit &hit) const {
-  throw std::logic_error("brdf not supported for dielectrics");
+  float fresnel = computeFresnel(hit.normal, wo, refractiveIndex, hit.isInside);
+  return (specular * fresnel + refractive * (1 - fresnel)) / abs(glm::dot(hit.normal, wi));
 }
 
 Material::Sample Dielectric::sampleDiffuse(const glm::vec3 &wo, const Hit &hit) const {
