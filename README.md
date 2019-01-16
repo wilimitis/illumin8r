@@ -1,5 +1,7 @@
 # illumin8r
 
+<img src="https://wilimitis.github.io/assets/img/2019-01-16-project.png" width="300"/>
+
 Minimal renderer designed for SIGGRAPH paper experimentation.
 
 ## Implementations
