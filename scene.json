@@ -10,18 +10,19 @@
     "width": 400,
     "type": "photon",
     "photonCount": 50000000,
-    "photonSearchDistanceSquared": 0.00025,
-    "pixelSamples": 2,
-    "directSamples": 16,
-    "indirectSoftSamples": 16,
+    "photonSearchDistanceSquared": 0.00015,
+    "photonSearchCountMinimum": 4,
+    "pixelSamples": 1,
+    "directSamples": 20,
+    "indirectSoftSamples": 12,
     "indirectSpecularBounces": 4
   },
   "lights": [
     {
       "type": "sphere",
       "intensity": {"x": 0.3, "y": 0.3, "z": 0.3},
-      "position": {"x": -1.70, "y": -12, "z": 16},
-      "power": {"x": 200, "y": 200, "z": 200},
+      "position": {"x": 0, "y": -14.5, "z": 18},
+      "power": {"x": 40, "y": 40, "z": 40},
       "radius": 1
     }
   ],
@@ -34,23 +35,23 @@
     {
       "key": "m1",
       "type": "dielectric",
-      "refractive": {"x": 0.899, "y": 0.85, "z": 0.85},
+      "refractive": {"x": 0.699, "y": 0.65, "z": 0.65},
       "specular": {"x": 0.699, "y": 0.65, "z": 0.65},
-      "refractiveIndex": 1.54
+      "refractiveIndex": 1.49
     }
   ],
   "objects": [
     {
-      "key": "suzanne",
+      "key": "fox",
       "type": "obj",
       "file": "models/suzanne-low.obj",
       "material": "m1",
       "rotate": {
-        "angle": 100,
-        "axis": {"x": 0, "y": 1, "z": 0}
+        "angle": 45,
+        "axis": {"x": 0, "y": 1, "z": -1}
       },
       "scale": {"x": 0.1, "y": 0.1, "z": 0.1},
-      "translate": {"x": -1.5, "y": -18, "z": 14}
+      "translate": {"x": 1.5, "y": -21, "z": 17}
     },
     {
       "key": "back",
