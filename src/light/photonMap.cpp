@@ -3,6 +3,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/vector_query.hpp>
 #include <iostream>
+#include <thread>
 #include "../render.h"
 #include "photonMap.h"
 
@@ -170,10 +171,11 @@ void PhotonMap::getNearest(
   }
 }
 
-void PhotonMap::init(
+void PhotonMap::emitPhotons(
   const std::vector<Light*> &lights,
   const std::vector<Object*> &objects,
-  bool requiresSpecularHit
+  bool requiresSpecularHit,
+  int count
 ) {
   for (int lightIndex = 0; lightIndex < lights.size(); lightIndex++) {
     for (int i = 0; i < photonCount / lights.size(); i++) {
@@ -185,6 +187,31 @@ void PhotonMap::init(
       emitPhoton(ray, objects, &p, requiresSpecularHit);
     }
   }
+}
+
+void PhotonMap::init(
+  const std::vector<Light*> &lights,
+  const std::vector<Object*> &objects,
+  bool requiresSpecularHit
+) {
+  // int threadCount = 8;
+  // int threadCountSqrt = sqrt(threadCount);
+  // std::thread threads[threadCount];
+  // for (int i = 0; i < threadCountSqrt; i++) {
+  //   for (int j = 0; j < threadCountSqrt; j++) {
+  //     threads[i * threadCountSqrt + j] = std::thread(
+  //       &PhotonMap::emitPhotons,
+  //       std::ref(lights),
+  //       std::ref(objects),
+  //       requiresSpecularHit,
+  //       photonCount / threadCount
+  //     );
+  //   }
+  // }
+  // for (int i = 0; i < threadCount; i++) {
+  //   threads[i].join();
+  // }
+  emitPhotons(lights, objects, requiresSpecularHit, photonCount);
   std::cout << "photon emission complete: " << photons.size() << " / " << photonCount << std::endl;
 
   photonNode = new PhotonNode(photons);

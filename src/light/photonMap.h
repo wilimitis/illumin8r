@@ -28,6 +28,11 @@ class PhotonMap {
       const std::vector<Object*> &objects,
       Photon* photon,
       bool requiresSpecularHit);
+    void emitPhotons(
+      const std::vector<Light*> &lights,
+      const std::vector<Object*> &objects,
+      bool requiresSpecularHit,
+      int count);
 
     static int photonCount;
     static int photonSearchCountMinimum;
