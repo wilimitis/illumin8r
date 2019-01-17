@@ -2,7 +2,7 @@
 
 <img src="https://wilimitis.github.io/assets/img/2019-01-16-project.png" width="300"/>
 
-Minimal renderer designed for SIGGRAPH paper experimentation.
+Renderer designed for SIGGRAPH paper experimentation.
 
 ## Implementations
 - [Jensen 96: Global Illumination using Photon Maps](http://graphics.ucsd.edu/~henrik/papers/photon_map/global_illumination_using_photon_maps_egwr96.pdf)
