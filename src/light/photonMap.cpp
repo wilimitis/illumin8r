@@ -80,7 +80,7 @@ void PhotonMap::emitPhoton(
       return;
     }
     photon->power = photon->power *
-      glm::dot(sample.direction, hit.normal) *
+      abs(glm::dot(sample.direction, hit.normal)) *
       sample.brdf /
       sample.pdf /
       Pr;
