@@ -1,5 +1,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/vector_query.hpp>
 #include <iostream>
 #include "../accelerationStructure/bvh.h"
 #include "mesh.h"
@@ -81,6 +83,9 @@ Hit Mesh::Triangle::intersects(const Ray &ray) {
 	h.distance = z;
 	h.position = ray.position + h.distance * ray.direction;
 	h.normal = (1 - u - v) * normals[0] + u * normals[1] + v * normals[2];
+	// h.normal = glm::cross(e1, e2);
+	h.normal = glm::normalize(h.normal);
+	assert(glm::isNormalized(h.normal, 0.1f));
   h.isEmpty = false;
 	return h;
 }
@@ -141,6 +146,7 @@ void Mesh::init(const char* file) {
 					triangle->vertices[0] - triangle->vertices[1],
 					triangle->vertices[0] - triangle->vertices[2]
 				));
+				assert(glm::isNormalized(normal, 0.1f));
 				for (int i = 0; i < vertexCount; i++) {
 					triangle->normals[i] = normal;
 				}
