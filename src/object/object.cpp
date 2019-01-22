@@ -1,5 +1,7 @@
 #include <glm/ext.hpp>
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/vector_query.hpp>
 #include "object.h"
 
 Object::Object() {
@@ -15,7 +17,9 @@ Ray Object::getLocal(const Ray &ray) {
   glm::vec3 localPosition = worldTransformation * glm::vec4(ray.position, 1);
   glm::vec3 localDirection = worldTransformation * glm::vec4(ray.direction, 0);
 
-  return Ray(glm::normalize(localDirection), localPosition);
+  Ray local = Ray(glm::normalize(localDirection), localPosition);
+  assert(glm::isNormalized(local.direction, 0.1f));
+  return local;
 }
 
 Ray Object::getWorld(const Ray &ray) {
@@ -24,7 +28,9 @@ Ray Object::getWorld(const Ray &ray) {
   glm::vec3 worldPosition = localTransformation * glm::vec4(ray.position, 1);
   glm::vec3 worldDirection = localTransformation * glm::vec4(ray.direction, 0);
 
-  return Ray(glm::normalize(worldDirection), worldPosition);
+  Ray world = Ray(glm::normalize(worldDirection), worldPosition);
+  assert(glm::isNormalized(world.direction, 0.1f));
+  return world;
 }
 
 void Object::rotate(float angle, const glm::vec3 &axis) {
