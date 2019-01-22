@@ -147,7 +147,6 @@ glm::vec3 computeDirect(Scene &scene, const Ray &ray, const Hit &hit) {
       }
     }
   }
-  // assert(color.x + color.y + color.z >= 0.0f);
   return color / float(scene.image.directSamples);
 }
 
