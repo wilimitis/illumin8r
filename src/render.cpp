@@ -125,7 +125,7 @@ glm::vec3 renderNormal(Scene &scene, const Ray &ray, int x, int y) {
 glm::vec3 computeDirect(Scene &scene, const Ray &ray, const Hit &hit) {
   float bias = 0.001f;
   glm::vec3 color = glm::vec3(BLACK);
-  if (hit.isEmpty) {
+  if (hit.isEmpty || !hit.material->isDiffuse()) {
     return color;
   }
   for (int i = 0; i < scene.lights.size(); i++) {
