@@ -2,6 +2,7 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+#include <iostream>
 #include <stdlib.h>
 # ifdef __APPLE__
 #  include <GLUT/glut.h>
@@ -41,6 +42,13 @@ void glutDisplay() {
 	glutSwapBuffers();
 }
 
+void glutMouse(int button, int state, int x, int y)
+{
+	if (state == GLUT_DOWN) {
+		std::cout << x << ", " << y << std::endl;
+	}
+}
+
 void Show() {
 	int argc = 1;
 	char argstr[] = "raytrace";
@@ -55,5 +63,6 @@ void Show() {
 	glutCreateWindow("illumin8r");
   glutKeyboardFunc(glutKeyboard);
 	glutDisplayFunc(glutDisplay);
+	glutMouseFunc(glutMouse);
 	glutMainLoop();
 }
