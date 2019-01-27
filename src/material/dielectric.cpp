@@ -11,7 +11,7 @@ Material::Sample Dielectric::sampleSpecular(const glm::vec3 &wo, const Hit &hit)
   sample.direction = glm::reflect(-wo, hit.normal);
   float fresnel = computeFresnel(hit.normal, wo, refractiveIndex, hit.isInside);
   sample.brdf = specular * fresnel / abs(glm::dot(hit.normal, sample.direction));
-  sample.pdf = 1;
+  sample.pdf = 1; // TODO: if inside one sample func then fresnel
   return sample;
 }
 
@@ -28,6 +28,6 @@ Material::Sample Dielectric::sampleRefractive(const glm::vec3 &wo, const Hit &hi
   }
   float fresnel = computeFresnel(hit.normal, wo, refractiveIndex, hit.isInside);
   sample.brdf = refractive * (1.0f - fresnel) / abs(glm::dot(hit.normal, sample.direction));
-  sample.pdf = 1;
+  sample.pdf = 1; // TODO: if inside one sample func then (1.0f - fresnel)
   return sample;
 }
