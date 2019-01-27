@@ -4,6 +4,10 @@ bool Material::isDiffuse() {
   return diffuse != glm::vec3(0);
 }
 
+bool Material::isSpecular() {
+  return specular != glm::vec3(0);
+}
+
 glm::vec3 Material::sampleWorld(const glm::vec3 &direction, const glm::vec3 &normal) const {
 	// Assumes direction.z is oriented towards the "top of the lobe".
   glm::vec3 w = normal;

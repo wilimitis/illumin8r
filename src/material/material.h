@@ -28,4 +28,5 @@ class Material {
     virtual Sample sampleRefractive(const glm::vec3 &wo, const Hit &hit) const = 0;
     
     bool isDiffuse();
+    bool isSpecular();
 };
