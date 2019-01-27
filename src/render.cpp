@@ -163,7 +163,7 @@ glm::vec3 computeDirect(Scene &scene, const Ray &ray, const Hit &hit) {
 }
 
 glm::vec3 computeIndirectCaustic(const Hit &hit) {
-  if (hit.isEmpty) {
+  if (hit.isEmpty || !causticPhotonMap.photonNode) {
     return glm::vec3(BLACK);
   }
   std::vector<PhotonMap::Photon*> nearest;
@@ -175,7 +175,7 @@ glm::vec3 computeIndirectCaustic(const Hit &hit) {
   for (int i = 0; i < nearest.size(); i++) {
     power += (nearest.at(i)->power) / float(PhotonMap::photonCount);
   }
-  power /= (M_PI * PhotonMap::photonSearchDistanceSquared);
+  power /= float(M_PI * PhotonMap::photonSearchDistanceSquared);
   return power;
 }
 

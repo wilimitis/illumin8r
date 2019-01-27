@@ -214,6 +214,8 @@ void PhotonMap::init(
   emitPhotons(lights, objects, requiresSpecularHit, photonCount);
   std::cout << "photon emission complete: " << photons.size() << " / " << photonCount << std::endl;
 
-  photonNode = new PhotonNode(photons);
+  if (photons.size() > 0) {
+    photonNode = new PhotonNode(photons);
+  }
   std::cout << "photon map complete" << std::endl;
 }
