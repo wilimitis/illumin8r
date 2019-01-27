@@ -136,14 +136,26 @@ glm::vec3 computeDirect(Scene &scene, const Ray &ray, const Hit &hit) {
       float lightDistance = glm::distance(lightSamplePosition, hit.position);
       Hit occlusion = cast(Ray(lightDirection, hit.position + bias * lightDirection), scene.objects);
       if (occlusion.isEmpty || occlusion.distance > lightDistance) {
-        // TODO: Extract method to compute direct light sample so that e.g. Phong can have its
-        // specular component represented properly and e.g. Dielectrics, etc. can do as they please.
-        color +=
-          hit.material->brdf(-ray.direction, lightDirection, hit) *
-          scene.lights.at(i)->intensity *
-          glm::max(0.0f, glm::dot(lightVector, hit.normal));
-          // TODO: Implement dot(lightVector, -lightNormal) for non-spherical luminaires.
-          // TODO: This blacks out the image. powf(lightDistance, 0.0f);
+        Material::Sample sample;
+        float random = glm::linearRand(0.0f, 1.0f);
+        if (random < glm::compMax(hit.material->diffuse)) {
+          sample = hit.material->sampleDiffuse(-ray.direction, hit);
+        } else if (random < glm::compMax(hit.material->specular)) {
+          sample = hit.material->sampleSpecular(-ray.direction, hit);
+        } else {
+          continue;
+        }
+        glm::vec3 intensity = scene.lights.at(i)->intensity;
+        float surfaceCosTheta = glm::max(0.0f, glm::dot(lightDirection, hit.normal));
+        float lightCosTheta = glm::max(0.0f, glm::dot(-lightDirection, -lightDirection /* Light normal */));
+        color += 
+          sample.brdf *
+          intensity *
+          surfaceCosTheta *
+          lightCosTheta /
+          sample.pdf /
+          scene.lights.at(i)->area / // TODO: Fix for sphere light. (Make arbitrarily small epsilon?)
+          powf(lightDistance, 2.0f);
       }
     }
   }
