@@ -1,5 +1,6 @@
 #include <glm/ext.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/component_wise.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/vector_query.hpp>
 #include <iostream>
@@ -35,18 +36,9 @@ void PhotonMap::emitPhoton(
   // TODO: Maybe just coin flip inside a single sample function?
   float random = glm::linearRand(0.0f, 1.0f);
   float Pmax = std::max({photon->power.x, photon->power.y, photon->power.z});
-  float Pd = std::max({
-      hit.material->diffuse.x * photon->power.x,
-      hit.material->diffuse.y * photon->power.y,
-      hit.material->diffuse.z * photon->power.z}) / Pmax;
-  float Ps = std::max({
-      hit.material->specular.x * photon->power.x,
-      hit.material->specular.y * photon->power.y,
-      hit.material->specular.z * photon->power.z}) / Pmax;
-  float Pr = std::max({
-      hit.material->refractive.x * photon->power.x,
-      hit.material->refractive.y * photon->power.y,
-      hit.material->refractive.z * photon->power.z}) / Pmax;
+  float Pd = glm::compMax(hit.material->diffuse * photon->power) / Pmax;
+  float Ps = glm::compMax(hit.material->specular * photon->power) / Pmax;
+  float Pr = glm::compMax(hit.material->refractive * photon->power) / Pmax;
   
   // Choose a path.
   if (random < Pd) {
