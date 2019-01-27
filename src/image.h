@@ -23,6 +23,7 @@ class Image {
     int directSamples;
     int indirectSoftSamples;
     int indirectSpecularBounces;
+    int indirectSpecularSamples;
 
     void init();
     void setBuffer(int x, int y, float value);

@@ -43,6 +43,7 @@ void setupImage(json node) {
   scene.image.directSamples = node["directSamples"];
   scene.image.indirectSoftSamples = node["indirectSoftSamples"];
   scene.image.indirectSpecularBounces = node["indirectSpecularBounces"];
+  scene.image.indirectSpecularSamples = node["indirectSpecularSamples"];
   scene.image.init();
 
   // TODO: Extract cleaner structure.
