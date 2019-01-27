@@ -58,6 +58,7 @@ void setupLights(json node) {
       l->intensity = getVec3(light["intensity"]);
       l->position = getVec3(light["position"]);
       l->power = getVec3(light["power"]);
+      l->area = 0;
       scene.lights.push_back(l);
     } else if (light["type"] == "sphere") {
       SphereLight* l = new SphereLight();
@@ -65,6 +66,7 @@ void setupLights(json node) {
       l->position = getVec3(light["position"]);
       l->power = getVec3(light["power"]);
       l->radius = light["radius"];
+      l->area = 4 * M_PI * l->radius * l->radius;
       scene.lights.push_back(l);
     }
   }
