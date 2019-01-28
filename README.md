@@ -2,6 +2,10 @@
 
 <img src="https://wilimitis.github.io/assets/img/2019-01-16-project.png" width="300"/>
 
+| Photon Mapping | Modified Phong BRDF |
+| --- | --- |
+| <img src="https://wilimitis.github.io/assets/img/2019-01-16-project.png" width="300"/> | <img src="https://wilimitis.github.io/assets/img/2019-01-27-project.png" width="300"/> |
+
 Renderer designed for SIGGRAPH paper experimentation.
 
 ## Implementations
