@@ -2,15 +2,23 @@
 #include "dielectric.h"
 #include "../utils.h"
 
+glm::vec3 Dielectric::brdf(const glm::vec3 &wo, const glm::vec3 &wi, const Hit &hit) const {
+  throw std::logic_error("not supported for dielectrics");
+}
+
+float Dielectric::pdf(const glm::vec3 &wo, const glm::vec3 &wi, const Hit &hit) const {
+  throw std::logic_error("not supported for dielectrics");
+}
+
 Material::Sample Dielectric::sampleDiffuse(const glm::vec3 &wo, const Hit &hit) const {
-  throw std::logic_error("diffuse not supported for dielectrics");
+  throw std::logic_error("not supported for dielectrics");
 }
 
 Material::Sample Dielectric::sampleSpecular(const glm::vec3 &wo, const Hit &hit) const {
   Material::Sample sample;
   sample.direction = glm::reflect(-wo, hit.normal);
   float fresnel = computeFresnel(hit.normal, wo, refractiveIndex, hit.isInside);
-  sample.brdf = specular * fresnel / abs(glm::dot(hit.normal, sample.direction));
+  sample.brdf = specular * fresnel / glm::dot(hit.normal, sample.direction);
   sample.pdf = 1; // TODO: if inside one sample func then fresnel
   return sample;
 }
