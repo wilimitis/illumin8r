@@ -6,65 +6,71 @@
     "up": {"x": 0, "y": 1, "z": 0}
   },
   "image": {
-    "height": 400,
-    "width": 400,
+    "height": 300,
+    "width": 300,
     "type": "photon",
-    "photonCount": 50000000,
-    "photonSearchDistanceSquared": 0.00005,
-    "photonSearchCountMinimum": 6,
-    "pixelSamples": 4,
-    "directSamples": 16,
-    "indirectSoftSamples": 12,
-    "indirectSpecularBounces": 4
+    "photonCount": 50000,
+    "photonSearchDistanceSquared": 0.001,
+    "photonSearchCountMinimum": 1,
+    "pixelSamples": 1,
+    "directSamples": 1,
+    "indirectSoftSamples": 1,
+    "indirectSpecularBounces": 4,
+    "indirectSpecularSamples": 1
   },
   "lights": [
     {
       "type": "sphere",
-      "intensity": {"x": 0.8, "y": 0.8, "z": 0.8},
+      "intensity": {"x": 0.4, "y": 0.4, "z": 0.4},
       "position": {"x": 0, "y": -15, "z": 5},
-      "power": {"x": 250, "y": 250, "z": 250},
+      "power": {"x": 100, "y": 100, "z": 100},
       "radius": 1
     }
   ],
   "materials": [
     {
-      "key": "m2",
+      "key": "w1",
       "type": "phong",
       "diffuse": {"x": 0.5, "y": 0.5, "z": 0.5}
     },
     {
-      "key": "s1",
-      "type": "dielectric",
-      "refractive": {"x": 0.75, "y": 0.75, "z": 0.85},
-      "specular": {"x": 0.75, "y": 0.75, "z": 0.85},
-      "refractiveIndex": 1.49
+      "key": "w2",
+      "type": "phong",
+      "diffuse": {"x": 0.5, "y": 0.5, "z": 0.5}
     },
     {
-      "key": "s2",
+      "key": "o1",
+      "type": "dielectric",
+      "specular": {"x": 0.4, "y": 0.35, "z": 0.4},
+      "refractive": {"x": 0.9, "y": 0.85, "z": 0.9},
+      "refractiveIndex": 1.46
+    },
+    {
+      "key": "o2",
       "type": "phong",
-      "diffuse": {"x": 0.45, "y": 0.45, "z": 0.55},
-      "specular": {"x": 0.35, "y": 0.35, "z": 0.45},
+      "diffuse": {"x": 0.5, "y": 0.3, "z": 0.5},
+      "specular": {"x": 0.5, "y": 0.3, "z": 0.5},
       "lobe": 20
     }
   ],
   "objects": [
     {
-      "key": "suzanne",
+      "key": "egg",
       "type": "obj",
-      "file": "models/suzanne.obj",
-      "material": "s1",
+      "file": "models/egg.obj",
+      "material": "o1",
       "rotate": {
-        "angle": 30,
+        "angle": 0,
         "axis": {"x": -1, "y": 0, "z": 0}
       },
-      "scale": {"x": 2, "y": 2, "z": 2},
-      "translate": {"x": 0, "y": -16.7, "z": 6}
+      "scale": {"x": 0.2, "y": 0.2, "z": 0.2},
+      "translate": {"x": 0, "y": -18, "z": 6}
     },
     {
       "key": "back",
       "type": "obj",
       "file": "models/plane.obj",
-      "material": "m2",
+      "material": "w1",
       "rotate": {
         "angle": 0,
         "axis": {"x": 0, "y": 1, "z": 0}
@@ -76,7 +82,7 @@
       "key": "bottom",
       "type": "obj",
       "file": "models/plane.obj",
-      "material": "m2",
+      "material": "w2",
       "rotate": {
         "angle": 90,
         "axis": {"x": 1, "y": 0, "z": 0}
@@ -88,49 +94,49 @@
       "key": "top",
       "type": "obj",
       "file": "models/plane.obj",
-      "material": "m2",
+      "material": "w1",
       "rotate": {
         "angle": 90,
         "axis": {"x": 1, "y": 0, "z": 0}
       },
       "scale": {"x": 2, "y": 2, "z": 2},
-      "translate": {"x": 0, "y": 0, "z": 18}
+      "translate": {"x": 0, "y": 0, "z": 0}
     },
     {
       "key": "left",
       "type": "obj",
       "file": "models/plane.obj",
-      "material": "m2",
+      "material": "w1",
       "rotate": {
         "angle": 90,
         "axis": {"x": 0, "y": 1, "z": 0}
       },
       "scale": {"x": 2, "y": 2, "z": 2},
-      "translate": {"x": -18, "y": 0, "z": 18}
+      "translate": {"x": -10, "y": 0, "z": 18}
     },
     {
       "key": "right",
       "type": "obj",
       "file": "models/plane.obj",
-      "material": "m2",
+      "material": "w1",
       "rotate": {
         "angle": 90,
         "axis": {"x": 0, "y": 1, "z": 0}
       },
       "scale": {"x": 2, "y": 2, "z": 2},
-      "translate": {"x": 18, "y": 0, "z": 18}
+      "translate": {"x": 10, "y": 0, "z": 18}
     },
     {
       "key": "front",
       "type": "obj",
       "file": "models/plane.obj",
-      "material": "m2",
+      "material": "w1",
       "rotate": {
         "angle": 0,
         "axis": {"x": 0, "y": 1, "z": 0}
       },
       "scale": {"x": 2, "y": 2, "z": 2},
-      "translate": {"x": 0, "y": 0, "z": 26}
+      "translate": {"x": 0, "y": 0, "z": 20}
     }
   ]
 }
