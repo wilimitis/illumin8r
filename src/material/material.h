@@ -20,6 +20,7 @@ class Material {
     // TODO: Maybe move into Dielectric?
     glm::vec3 refractive;
     float refractiveIndex;
+    bool isPure;
 
     glm::vec3 sampleWorld(const glm::vec3 &direction, const glm::vec3 &up) const;
     

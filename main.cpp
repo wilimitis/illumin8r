@@ -81,6 +81,7 @@ void setupMaterials(json node) {
       m->diffuse = getVec3(material["diffuse"]);
       m->specular = getVec3(material["specular"]);
       m->lobe = getFloat(material["lobe"]);
+      m->isPure = false;
       scene.materials.push_back(m);
     } else if (material["type"] == "dielectric") {
       Dielectric* m = new Dielectric();
@@ -88,6 +89,7 @@ void setupMaterials(json node) {
       m->specular = getVec3(material["specular"]);
       m->refractive = getVec3(material["refractive"]);
       m->refractiveIndex = getFloat(material["refractiveIndex"]);
+      m->isPure = true;
       scene.materials.push_back(m);
     }
   }
