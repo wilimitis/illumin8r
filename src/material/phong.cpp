@@ -61,17 +61,17 @@ float Phong::pdf(const glm::vec3 &wo, const glm::vec3 &wi, const Hit &hit) const
   return total / count;
 }
 
-Material::Sample Phong::sampleDiffuse(const glm::vec3 &wo, const Hit &hit) const {
-  HemisphereSample hemisphereSample = sampleHemisphere(wo, hit, diffuseLobe);
-  Material::Sample sample;
-  // TODO: Extract helper.
-  sample.brdf = diffuse * float(M_1_PI);
-  sample.direction = sampleWorld(hemisphereSample.direction, hit.normal);
-  sample.pdf = hemisphereSample.pdf;
-  return sample;
-}
-
-Material::Sample Phong::sampleSpecular(const glm::vec3 &wo, const Hit &hit) const {
+Material::Sample Phong::sample(const glm::vec3 &wo, const Hit &hit, const Sample::Type &type) const {
+  if (type == Sample::Type::diffuse) {
+    HemisphereSample hemisphereSample = sampleHemisphere(wo, hit, diffuseLobe);
+    Material::Sample sample;
+    // TODO: Extract helper.
+    sample.brdf = diffuse * float(M_1_PI);
+    sample.direction = sampleWorld(hemisphereSample.direction, hit.normal);
+    sample.pdf = hemisphereSample.pdf;
+    return sample;
+  }
+  
   HemisphereSample hemisphereSample = sampleHemisphere(wo, hit, lobe);
   glm::vec3 reflection = glm::reflect(-wo, hit.normal);
   // Center the sampled direction around the perfect specular reflection direction.

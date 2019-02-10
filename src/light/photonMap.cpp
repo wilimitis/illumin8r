@@ -42,7 +42,7 @@ void PhotonMap::emitPhoton(
   
   // Choose a path.
   if (random < Pd) {
-    Material::Sample sample = hit.material->sampleDiffuse(-ray.direction, hit);
+    Material::Sample sample = hit.material->sample(-ray.direction, hit, Material::Sample::Type::diffuse);
     assert(glm::dot(hit.normal, sample.direction) >= 0);
     photon->power = photon->power *
       glm::dot(sample.direction, hit.normal) *
@@ -53,7 +53,7 @@ void PhotonMap::emitPhoton(
     assert(glm::dot(ray.direction, hit.normal) > 0);
   } else if (random < Pd + Ps) {
     requiresSpecularHit = false;
-    Material::Sample sample = hit.material->sampleSpecular(-ray.direction, hit);
+    Material::Sample sample = hit.material->sample(-ray.direction, hit, Material::Sample::Type::specular);
     if (glm::dot(hit.normal, sample.direction) <= 0) {
       return;
     }

@@ -184,7 +184,7 @@ glm::vec3 computeIndirectSoft(Scene &scene, const Ray &ray, const Hit &hit) {
     return color;
   }
   for (int i = 0; i < scene.image.indirectSoftSamples; i++) {
-    Material::Sample diffuseSample = hit.material->sampleDiffuse(-ray.direction, hit);
+    Material::Sample diffuseSample = hit.material->sample(-ray.direction, hit, Material::Sample::Type::diffuse);
     Ray diffuseRay = Ray(diffuseSample.direction, hit.position + bias * diffuseSample.direction);
     Hit diffuseHit = cast(diffuseRay, scene.objects);
     glm::vec3 direct = computeDirect(scene, diffuseRay, diffuseHit);
@@ -212,7 +212,7 @@ glm::vec3 computeIndirectSpecular(Scene &scene, const Ray &ray, const Hit &hit, 
   int samples = hit.material->isPure ? 1 : scene.image.indirectSpecularSamples;
   for (int i = 0; i < samples; i++) {
     // Reflection.
-    Material::Sample reflectionSample = hit.material->sampleSpecular(-ray.direction, hit);
+    Material::Sample reflectionSample = hit.material->sample(-ray.direction, hit, Material::Sample::Type::specular);
     glm::vec3 reflectionColor = glm::vec3(BLACK); 
     if (
       reflectionSample.direction != glm::vec3(0) && // Sample direction is the surface or not implemented.

@@ -10,11 +10,10 @@ float Dielectric::pdf(const glm::vec3 &wo, const glm::vec3 &wi, const Hit &hit) 
   throw std::logic_error("not supported for dielectrics");
 }
 
-Material::Sample Dielectric::sampleDiffuse(const glm::vec3 &wo, const Hit &hit) const {
-  throw std::logic_error("not supported for dielectrics");
-}
-
-Material::Sample Dielectric::sampleSpecular(const glm::vec3 &wo, const Hit &hit) const {
+Material::Sample Dielectric::sample(const glm::vec3 &wo, const Hit &hit, const Sample::Type &type) const {
+  if (type == Sample::Type::diffuse) {
+    throw std::logic_error("not supported for dielectrics");
+  }
   Material::Sample sample;
   sample.direction = glm::reflect(-wo, hit.normal);
   float fresnel = computeFresnel(hit.normal, wo, refractiveIndex, hit.isInside);
