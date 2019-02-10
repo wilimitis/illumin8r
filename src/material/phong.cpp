@@ -51,6 +51,7 @@ glm::vec3 Phong::brdf(const glm::vec3 &wo, const glm::vec3 &wi, const Hit &hit) 
 }
 
 float Phong::pdf(const glm::vec3 &wo, const glm::vec3 &wi, const Hit &hit) const {
+  // TODO: Consider alternate heuristic.
   int count = 1;
   float total = pdfHemisphere(glm::max(0.0f, glm::dot(wi, hit.normal)), diffuseLobe);
   if (specular != glm::vec3(0)) {
