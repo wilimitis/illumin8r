@@ -5,16 +5,16 @@ using json = nlohmann::json;
 #include <iostream>
 #include <string>
 #include <vector>
-#include "src/material/dielectric.h"
-#include "src/material/phong.h"
-#include "src/light/photonMap.h"
-#include "src/light/pointLight.h"
-#include "src/light/sphereLight.h"
-#include "src/object/mesh.h"
-#include "src/object/sphere.h"
-#include "src/scene.h"
-#include "src/render.h"
-#include "src/window.h"
+#include "material/dielectric.h"
+#include "material/phong.h"
+#include "light/photonMap.h"
+#include "light/pointLight.h"
+#include "light/sphereLight.h"
+#include "object/mesh.h"
+#include "object/sphere.h"
+#include "scene.h"
+#include "render.h"
+#include "window.h"
 
 Scene scene;
 
