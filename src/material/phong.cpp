@@ -18,7 +18,8 @@ float pdfHemisphere(float cosAlpha, int lobe) {
 struct HemisphereSample {
   glm::vec3 direction;
   float pdf;
-  float theta;
+  // TODO: Consider having samplers use this instead of alpha.
+  // float theta;
 };
 
 HemisphereSample sampleHemisphere(const glm::vec3 &wo, const Hit &hit, int lobe) {
@@ -30,8 +31,9 @@ HemisphereSample sampleHemisphere(const glm::vec3 &wo, const Hit &hit, int lobe)
     cosf(phi) * sqrtf(1.0f - powf(r2, 2.0f / (lobe + 1.0f))),
     sinf(phi) * sqrtf(1.0f - powf(r2, 2.0f / (lobe + 1.0f))),
     powf(r2, 1.0f / (lobe + 1.0f)));
-  sample.theta = acosf(powf(r2, 1.0f / (lobe + 1.0f)));
-  sample.pdf = pdfHemisphere(glm::max(0.0f, cosf(sample.theta)), lobe);
+  // Embeds cos(arccos(...)).
+  float cosTheta = powf(r2, 1.0f / (lobe + 1.0f));
+  sample.pdf = pdfHemisphere(glm::max(0.0f, cosTheta), lobe);
   return sample;
 }
 
