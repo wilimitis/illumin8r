@@ -9,13 +9,13 @@
     "height": 300,
     "width": 300,
     "type": "photon",
-    "photonCount": 50000,
+    "photonCount": 500000,
     "photonSearchDistanceSquared": 0.001,
     "photonSearchCountMinimum": 1,
     "pixelSamples": 1,
-    "directSamples": 1,
-    "indirectSoftSamples": 1,
-    "indirectSpecularBounces": 4,
+    "directSamples": 3,
+    "indirectSoftSamples": 3,
+    "indirectSpecularBounces": 3,
     "indirectSpecularSamples": 1
   },
   "lights": [
