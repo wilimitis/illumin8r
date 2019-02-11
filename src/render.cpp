@@ -187,6 +187,7 @@ glm::vec3 computeIndirectSoft(Scene &scene, const Ray &ray, const Hit &hit) {
     Material::Sample diffuseSample = hit.material->sample(-ray.direction, hit, Material::Sample::Type::diffuse);
     Ray diffuseRay = Ray(diffuseSample.direction, hit.position + bias * diffuseSample.direction);
     Hit diffuseHit = cast(diffuseRay, scene.objects);
+    // TODO: Consider computing total radiance.
     glm::vec3 direct = computeDirect(scene, diffuseRay, diffuseHit);
     if (diffuseSample.pdf > 0) {
       color += direct *
