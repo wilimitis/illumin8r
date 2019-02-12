@@ -27,13 +27,11 @@ HemisphereSample sampleHemisphere(const glm::vec3 &wo, const Hit &hit, int lobe)
   float r2 = glm::linearRand(0.0f, 1.0f);
   float phi = 2.0f * float(M_PI) * r1;
   HemisphereSample sample;
-  sample.direction = glm::vec3(
-    cosf(phi) * sqrtf(1.0f - powf(r2, 2.0f / (lobe + 1.0f))),
-    sinf(phi) * sqrtf(1.0f - powf(r2, 2.0f / (lobe + 1.0f))),
-    powf(r2, 1.0f / (lobe + 1.0f)));
+  float t1 = sqrtf(1.0f - powf(r2, 2.0f / (lobe + 1.0f)));
+  float t2 = powf(r2, 1.0f / (lobe + 1.0f));
+  sample.direction = glm::vec3(cosf(phi) * t1, sinf(phi) * t1, t2);
   // Embeds cos(arccos(...)).
-  float cosTheta = powf(r2, 1.0f / (lobe + 1.0f));
-  sample.pdf = pdfHemisphere(glm::max(0.0f, cosTheta), lobe);
+  sample.pdf = pdfHemisphere(glm::max(0.0f, t2), lobe);
   return sample;
 }
 
