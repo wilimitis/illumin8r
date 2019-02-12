@@ -76,9 +76,9 @@ Hit cast(const Ray &ray, const std::vector<Object*> &objects) {
       assert(glm::isNormalized(intersectionRay.direction, 0.1f));
       if (glm::dot(ray.direction, hit.normal) > 0) {
         // We've hit the back.
-        if (hit.material->refractiveIndex != 0) {
+        // if (hit.material->refractiveIndex != 0) {
           hit.isInside = true;
-        }
+        // }
         hit.normal *= -1;
       }
       hit.objectKey = object->key;
@@ -184,7 +184,7 @@ glm::vec3 computeIndirectSoft(Scene &scene, const Ray &ray, const Hit &hit) {
     return color;
   }
   for (int i = 0; i < scene.image.indirectSoftSamples; i++) {
-    Material::Sample diffuseSample = hit.material->sample(-ray.direction, hit, Material::Sample::Type::diffuse);
+    Material::Sample diffuseSample = hit.material->sample(-ray.direction, hit, glm::linearRand(0.0f, 1.0f), Material::Sample::Type::diffuse);
     Ray diffuseRay = Ray(diffuseSample.direction, hit.position + bias * diffuseSample.direction);
     Hit diffuseHit = cast(diffuseRay, scene.objects);
     // TODO: Consider computing total radiance.
@@ -212,37 +212,20 @@ glm::vec3 computeIndirectSpecular(Scene &scene, const Ray &ray, const Hit &hit, 
   }
   int samples = hit.material->isPure ? 1 : scene.image.indirectSpecularSamples;
   for (int i = 0; i < samples; i++) {
-    // Reflection.
-    Material::Sample reflectionSample = hit.material->sample(-ray.direction, hit, Material::Sample::Type::specular);
-    glm::vec3 reflectionColor = glm::vec3(BLACK); 
+    Material::Sample sample = hit.material->sample(-ray.direction, hit, glm::linearRand(0.0f, 1.0f), Material::Sample::Type::specular);
+    glm::vec3 sampleColor = glm::vec3(BLACK); 
     if (
-      reflectionSample.direction != glm::vec3(0) && // Sample direction is the surface or not implemented.
-      reflectionSample.pdf > 0
+      sample.direction != glm::vec3(0) && // Sample direction is the surface or not implemented.
+      sample.pdf > 0
     ) {
-      Ray reflectionRay = Ray(reflectionSample.direction, hit.position + bias * reflectionSample.direction);
-      Hit reflectionHit = cast(reflectionRay, scene.objects);
-      reflectionColor = computeRadiance(scene, reflectionRay, reflectionHit, bounces + 1) *
-        reflectionSample.brdf *
-        glm::max(0.0f, glm::dot(hit.normal, reflectionSample.direction)) /
-        reflectionSample.pdf;
+      Ray sampleRay = Ray(sample.direction, hit.position + bias * sample.direction);
+      Hit sampleHit = cast(sampleRay, scene.objects);
+      sampleColor = computeRadiance(scene, sampleRay, sampleHit, bounces + 1) *
+        sample.brdf *
+        abs(glm::dot(hit.normal, sample.direction)) /
+        sample.pdf;
     }
-
-    // Refraction.
-    Material::Sample refractionSample = hit.material->sampleRefractive(-ray.direction, hit);
-    glm::vec3 refractionColor = glm::vec3(BLACK);
-    if (
-      refractionSample.direction != glm::vec3(0) && // TIR or not implemented
-      refractionSample.pdf > 0
-    ) {
-      Ray refractionRay = Ray(refractionSample.direction, hit.position + bias * refractionSample.direction);
-      Hit refractionHit = cast(refractionRay, scene.objects);
-      refractionColor = computeRadiance(scene, refractionRay, refractionHit, bounces + 1) *
-        refractionSample.brdf *
-        glm::max(0.0f, -glm::dot(hit.normal, refractionSample.direction)) /
-        refractionSample.pdf;
-    }
-
-    color += reflectionColor + refractionColor;
+    color += sampleColor;
   }
   return color / float(samples);
 }
@@ -263,6 +246,7 @@ glm::vec3 renderPhoton(Scene &scene, const Ray &ray, int x, int y) {
   Hit hit = cast(ray, scene.objects);
   glm::vec3 color = computeRadiance(scene, ray, hit);
   assert(!isnan(color.x) && !isnan(color.y) && !isnan(color.z));
+  assert(color.x >= 0 && color.y >= 0 && color.z >= 0);
   return color;
 }
 

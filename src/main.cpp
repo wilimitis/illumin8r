@@ -87,7 +87,6 @@ void setupMaterials(json node) {
       Dielectric* m = new Dielectric();
       m->key = material["key"];
       m->specular = getVec3(material["specular"]);
-      m->refractive = getVec3(material["refractive"]);
       m->refractiveIndex = getFloat(material["refractiveIndex"]);
       m->isPure = true;
       scene.materials.push_back(m);

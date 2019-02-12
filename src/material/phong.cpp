@@ -61,7 +61,12 @@ float Phong::pdf(const glm::vec3 &wo, const glm::vec3 &wi, const Hit &hit) const
   return total / count;
 }
 
-Material::Sample Phong::sample(const glm::vec3 &wo, const Hit &hit, const Sample::Type &type) const {
+Material::Sample Phong::sample(
+  const glm::vec3 &wo,
+  const Hit &hit,
+  const float &random,
+  const Sample::Type &type
+) const {
   if (type == Sample::Type::diffuse) {
     HemisphereSample hemisphereSample = sampleHemisphere(wo, hit, diffuseLobe);
     Material::Sample sample;
@@ -89,11 +94,5 @@ Material::Sample Phong::sample(const glm::vec3 &wo, const Hit &hit, const Sample
     powf(alpha(wo, sample.direction, hit), lobe) /
     (2.0f * float(M_PI));
   sample.pdf = hemisphereSample.pdf;
-  return sample;
-}
-
-Material::Sample Phong::sampleRefractive(const glm::vec3 &wo, const Hit &hit) const {
-  Material::Sample sample;
-  sample.direction = glm::vec3(0);
   return sample;
 }

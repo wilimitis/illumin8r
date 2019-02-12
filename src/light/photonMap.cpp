@@ -38,12 +38,10 @@ void PhotonMap::emitPhoton(
   float Pmax = std::max({photon->power.x, photon->power.y, photon->power.z});
   float Pd = glm::compMax(hit.material->diffuse * photon->power) / Pmax;
   float Ps = glm::compMax(hit.material->specular * photon->power) / Pmax;
-  float Pr = glm::compMax(hit.material->refractive * photon->power) / Pmax;
   
   // Choose a path.
   if (random < Pd) {
-    Material::Sample sample = hit.material->sample(-ray.direction, hit, Material::Sample::Type::diffuse);
-    assert(glm::dot(hit.normal, sample.direction) >= 0);
+    Material::Sample sample = hit.material->sample(-ray.direction, hit, random, Material::Sample::Type::diffuse);
     photon->power = photon->power *
       glm::dot(sample.direction, hit.normal) *
       sample.brdf /
@@ -53,31 +51,16 @@ void PhotonMap::emitPhoton(
     assert(glm::dot(ray.direction, hit.normal) > 0);
   } else if (random < Pd + Ps) {
     requiresSpecularHit = false;
-    Material::Sample sample = hit.material->sample(-ray.direction, hit, Material::Sample::Type::specular);
-    if (glm::dot(hit.normal, sample.direction) <= 0) {
-      return;
-    }
-    photon->power = photon->power *
-      glm::dot(sample.direction, hit.normal) *
-      sample.brdf /
-      sample.pdf /
-      Ps;
-    ray.direction = sample.direction;
-    assert(glm::dot(ray.direction, hit.normal) > 0);
-  } else if (random < Pd + Ps + Pr) {
-    requiresSpecularHit = false;
-    Material::Sample sample = hit.material->sampleRefractive(-ray.direction, hit);
+    Material::Sample sample = hit.material->sample(-ray.direction, hit, random, Material::Sample::Type::specular);
     if (sample.direction == glm::vec3(0)) {
-      // TIR.
       return;
     }
     photon->power = photon->power *
       abs(glm::dot(sample.direction, hit.normal)) *
       sample.brdf /
       sample.pdf /
-      Pr;
+      Ps;
     ray.direction = sample.direction;
-    assert(glm::dot(ray.direction, hit.normal) < 0);
   } else {
     // Absorption.
     return;
