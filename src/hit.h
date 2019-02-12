@@ -9,6 +9,7 @@ class Hit {
   public:
     float distance;
     bool isEmpty;
+    // Currently used only for dielectrics.
     bool isInside;
     Material* material;
     glm::vec3 normal;
