@@ -1,5 +1,5 @@
 # illumin8r
-| Dielectric Dirac BRDF with Photon Mapping | Modified Phong BRDF |
+| Dielectric Dirac BRDF with Photon Mapping | Modified Phong BRDF with Importance Sampling |
 | --- | --- |
 | <img src="https://wilimitis.github.io/assets/img/2019-01-16-project-0.png" width="300"/> | <img src="https://wilimitis.github.io/assets/img/2019-01-27-project-1.png" width="300"/> |
 
