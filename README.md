@@ -1,10 +1,9 @@
 # illumin8r
-
 | Dielectric Dirac BRDF with Photon Mapping | Modified Phong BRDF |
 | --- | --- |
 | <img src="https://wilimitis.github.io/assets/img/2019-01-16-project-0.png" width="300"/> | <img src="https://wilimitis.github.io/assets/img/2019-01-27-project-1.png" width="300"/> |
 
-Renderer designed for SIGGRAPH paper experimentation.
+Renderer designed for light transport experimentation.
 
 ## Implementations
 - [Jensen 96: Global Illumination using Photon Maps](http://graphics.ucsd.edu/~henrik/papers/photon_map/global_illumination_using_photon_maps_egwr96.pdf)
